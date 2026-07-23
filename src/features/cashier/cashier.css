@@ -1,0 +1,178 @@
+.cashier-page {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.cashier-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.product-picker {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.product-btn {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.product-btn:hover {
+  background: #f9fafb;
+}
+
+.empty-cart {
+  color: #6b7280;
+  padding: 1.5rem 0;
+}
+
+.cart-table {
+  width: 100%;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  border-collapse: collapse;
+}
+
+.cart-table thead tr {
+  text-align: left;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-table th,
+.cart-table td {
+  padding: 0.5rem 0.75rem;
+}
+
+.cart-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.unit-cell {
+  color: #6b7280;
+}
+
+.qty-input {
+  width: 4rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+}
+
+.line-total-cell {
+  font-weight: 500;
+}
+
+.remove-btn {
+  color: #dc2626;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.remove-btn:hover {
+  text-decoration: underline;
+}
+
+.discount-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.select-input,
+.discount-input {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+}
+
+.discount-input {
+  width: 6rem;
+}
+
+.totals {
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.totals p {
+  margin: 0.25rem 0;
+}
+
+.grand-total {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.error-message {
+  color: #dc2626;
+  margin-bottom: 0.75rem;
+}
+
+.success-message {
+  color: #16a34a;
+  margin-bottom: 0.75rem;
+}
+
+.finalize-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.finalize-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Receipt is only shown when printing */
+.receipt {
+  display: none;
+}
+
+@media print {
+  .cashier-screen {
+    display: none;
+  }
+
+  .receipt {
+    display: block;
+    font-family: var(--mono, ui-monospace, Consolas, monospace);
+    font-size: 0.875rem;
+  }
+
+  .receipt h2 {
+    text-align: center;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .receipt hr {
+    margin: 0.5rem 0;
+    border-color: #000;
+  }
+
+  .receipt-line {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .receipt-total {
+    font-weight: 600;
+  }
+}

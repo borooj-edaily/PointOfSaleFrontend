@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { CartItemRow, type CartLine } from "./components/CartItemRow";
 import { mockProducts, mockCurrentUser } from "../../mocks/mockCatalog";
 import { invoiceService } from "../../services/invoiceService";
@@ -108,7 +109,12 @@ export function CashierCartPage() {
   return (
     <div className="cashier-page">
       <div className="cashier-screen">
-        <h1 className="cashier-title">New Invoice</h1>
+        <div className="cashier-header">
+          <h1 className="cashier-title">New Invoice</h1>
+          <Link to="/exchange" className="nav-link">
+            Exchange / Return →
+          </Link>
+        </div>
 
         <div className="product-picker">
           {mockProducts.map((product) => (

@@ -1,0 +1,201 @@
+.exchange-page {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.exchange-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.exchange-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+.exchange-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.section-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.lookup-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.lookup-input {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  flex: 1;
+}
+
+.lookup-btn {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0.4rem 0.9rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.lookup-btn:hover {
+  background: #f9fafb;
+}
+
+.lookup-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.fallback-box {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.manual-entry {
+  margin-top: 0.75rem;
+}
+
+.hint-text {
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.link-btn:disabled {
+  color: #9ca3af;
+  cursor: default;
+  text-decoration: none;
+}
+
+.invoice-summary {
+  margin-top: 1rem;
+}
+
+.items-table {
+  width: 100%;
+  font-size: 0.875rem;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.items-table th,
+.items-table td {
+  padding: 0.4rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.row-selected {
+  background: #eff6ff;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #374151;
+}
+
+.form-input {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.875rem;
+}
+
+.reason-field {
+  margin-bottom: 0.75rem;
+}
+
+.reason-input {
+  resize: vertical;
+}
+
+.error-message {
+  color: #dc2626;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.submit-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.result-box {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.result-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  margin: 0.35rem 0;
+}
+
+.result-diff {
+  font-weight: 600;
+}
+
+.result-total {
+  font-weight: 700;
+  font-size: 1rem;
+}

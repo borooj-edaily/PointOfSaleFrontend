@@ -62,3 +62,29 @@ export interface ReturnInvoiceItemResponse {
   newTotal: number;
   createdAt: string;
 }
+
+export interface ExchangeInvoiceItemRequest {
+  invoiceItemId: number;
+  returnedQuantity: number;
+  replacementProductId: number;
+  replacementUnitSold: UnitSold;
+  replacementQuantity: number;
+  processedBy: number;
+  reason?: string | null;
+}
+
+export interface ExchangeInvoiceItemResponse {
+  success: boolean;
+  exchangeId: number;
+  invoiceId: number;
+  invoiceItemId: number;
+  returnedQuantity: number;
+  replacementProductId: number;
+  replacementQuantity: number;
+  returnedItemValue: number;
+  replacementItemValue: number;
+  priceDifference: number;
+  newSubtotal: number;
+  newTotal: number;
+  createdAt: string;
+}

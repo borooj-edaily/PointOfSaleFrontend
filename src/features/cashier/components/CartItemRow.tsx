@@ -1,3 +1,4 @@
+import { Minus, Plus, X } from "lucide-react";
 import type { Product } from "../../../types/catalog";
 import type { UnitSold } from "../../../types/invoice";
 
@@ -19,32 +20,54 @@ function unitPrice(line: CartLine): number {
     : line.product.pricePerPiece;
 }
 
+function unitLabel(line: CartLine): string {
+  return line.unitSold === "package" ? "عبوة" : "قطعة";
+}
+
 export function CartItemRow({ line, onQuantityChange, onRemove }: Props) {
   const lineTotal = unitPrice(line) * line.quantity;
 
   return (
-    <tr className="border-b border-gray-200">
-      <td className="py-2 px-3">{line.product.name}</td>
-      <td className="py-2 px-3 text-gray-500">{line.unitSold}</td>
-      <td className="py-2 px-3">
-        <input
-          type="number"
-          min={1}
-          value={line.quantity}
-          onChange={(e) => onQuantityChange(line.product.id, Number(e.target.value))}
-          className="w-16 border border-gray-300 rounded px-2 py-1"
-        />
-      </td>
-      <td className="py-2 px-3">${unitPrice(line).toFixed(2)}</td>
-      <td className="py-2 px-3 font-medium">${lineTotal.toFixed(2)}</td>
-      <td className="py-2 px-3">
+    <li className="px-4 py-3">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-medium leading-tight text-slate-800">{line.product.name}</p>
         <button
+          type="button"
           onClick={() => onRemove(line.product.id)}
-          className="text-red-600 hover:underline"
+          className="shrink-0 text-slate-300 transition hover:text-red-500"
+          aria-label="حذف الصنف"
         >
-          Remove
+          <X size={14} />
         </button>
-      </td>
-    </tr>
+      </div>
+
+      <div className="mt-2 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onQuantityChange(line.product.id, line.quantity - 1)}
+            disabled={line.quantity <= 1}
+            className="flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 text-slate-500 transition hover:bg-slate-50 disabled:opacity-30"
+            aria-label="إنقاص الكمية"
+          >
+            <Minus size={12} />
+          </button>
+          <span className="w-6 text-center font-mono text-xs font-semibold text-slate-700">
+            {line.quantity}
+          </span>
+          <button
+            type="button"
+            onClick={() => onQuantityChange(line.product.id, line.quantity + 1)}
+            className="flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 text-slate-500 transition hover:bg-slate-50"
+            aria-label="زيادة الكمية"
+          >
+            <Plus size={12} />
+          </button>
+          <span className="mr-1 text-[11px] text-slate-400">{unitLabel(line)}</span>
+        </div>
+
+        <span className="font-mono text-sm text-slate-600">{lineTotal.toFixed(2)}</span>
+      </div>
+    </li>
   );
 }

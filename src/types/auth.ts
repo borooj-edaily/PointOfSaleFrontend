@@ -1,0 +1,20 @@
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+
+export interface LoginResponse {
+  token: string;
+  userId: number;
+  username: string;
+  fullName: string;
+  role: string;
+}
+
+export interface StoredUser {
+  id: number;
+  username: string;
+  fullName: string;
+  role: string;
+}

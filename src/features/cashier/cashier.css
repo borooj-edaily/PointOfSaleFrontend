@@ -1,0 +1,96 @@
+/* On-screen layout now lives entirely in Tailwind classes inside the .tsx files.
+   This file only controls what the printed receipt looks like. */
+
+.receipt {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  .cashier-screen {
+    display: none;
+  }
+
+  .receipt {
+    display: block;
+    width: 72mm;
+    margin: 0 auto;
+    padding: 4mm 3mm 10mm;
+    font-family: var(--mono, ui-monospace, "SFMono-Regular", Consolas, monospace);
+    font-size: 11px;
+    line-height: 1.6;
+    color: #000;
+    direction: rtl;
+  }
+
+  .receipt-store-name {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+
+  .receipt-tagline {
+    text-align: center;
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+
+  .receipt-divider {
+    border: none;
+    border-top: 1px dashed #000;
+    margin: 6px 0;
+  }
+
+  .receipt-meta div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    padding: 1px 0;
+  }
+
+  .receipt-item {
+    margin-bottom: 4px;
+  }
+
+  .receipt-item-name {
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .receipt-item-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #000;
+    padding-right: 0.5rem;
+  }
+
+  .receipt-summary-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    padding: 1px 0;
+  }
+
+  .receipt-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 14px;
+    border-top: 1px dashed #000;
+    padding-top: 4px;
+    margin-top: 4px;
+  }
+
+  .receipt-footer {
+    text-align: center;
+    font-size: 10px;
+    margin-top: 8px;
+  }
+}

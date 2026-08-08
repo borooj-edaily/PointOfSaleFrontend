@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { LogOut, ArrowLeft, Search } from "lucide-react";
-import { mockProducts } from "../../mocks/mockCatalog";
+import { getAllProducts } from "../../api/productApi";
 import { invoiceService } from "../../services/invoiceService";
 import { ApiError } from "../../api/httpClient";
 import { getCurrentUser, logout } from "../../api/authApi";
+import type { Product } from "../../types/catalog";
 import type {
   ExchangeInvoiceItemResponse,
   GetInvoiceByNumberResponse,
@@ -23,12 +24,34 @@ function StepBadge({ n }: { n: number }) {
   );
 }
 
-function productName(productId: number): string {
-  return mockProducts.find((p) => p.id === productId)?.name ?? `#${productId}`;
+function productName(products: Product[], productId: number): string {
+  return products.find((p) => p.id === productId)?.name ?? `#${productId}`;
 }
 
 export function ExchangeScreen() {
   const currentUser = getCurrentUser();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsStatus, setProductsStatus] = useState<"loading" | "idle" | "error">("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getAllProducts()
+      .then((data) => {
+        if (cancelled) return;
+        setProducts(data);
+        setProductsStatus("idle");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setProductsStatus("error");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // --- Step 1: find the invoice ---
   const [invoiceNumberInput, setInvoiceNumberInput] = useState("");
   const [lookupStatus, setLookupStatus] = useState<LookupStatus>("idle");
@@ -51,7 +74,7 @@ export function ExchangeScreen() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [result, setResult] = useState<ExchangeInvoiceItemResponse | null>(null);
 
-  const replacementProduct = mockProducts.find((p) => p.id === replacementProductId);
+  const replacementProduct = products.find((p) => p.id === replacementProductId);
 
   async function handleLookup() {
     const invoiceNumber = Number(invoiceNumberInput);
@@ -264,7 +287,7 @@ export function ExchangeScreen() {
                           }
                         >
                           <td className="px-3 py-2 font-medium text-slate-800">
-                            {productName(item.productId)}
+                            {productName(products, item.productId)}
                           </td>
                           <td className="px-3 py-2 text-slate-500">{item.unitSold}</td>
                           <td className="px-3 py-2 font-mono">{item.quantity}</td>
@@ -320,8 +343,10 @@ export function ExchangeScreen() {
                     }}
                     className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
                   >
-                    <option value="">اختر منتج...</option>
-                    {mockProducts.map((p) => (
+                    <option value="">
+                      {productsStatus === "loading" ? "جارٍ تحميل المنتجات..." : "اختر منتج..."}
+                    </option>
+                    {products.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.name}
                       </option>

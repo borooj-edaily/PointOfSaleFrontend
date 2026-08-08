@@ -1,17 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { LogOut, ArrowLeftRight, Search, Users } from "lucide-react";
 import { CartItemRow, type CartLine } from "./components/CartItemRow";
 import { CheckoutScreen } from "./CheckoutScreen";
-import { mockProducts } from "../../mocks/mockCatalog";
+import { getAllProducts } from "../../api/productApi";
 import { invoiceService } from "../../services/invoiceService";
 import { ApiError } from "../../api/httpClient";
 import { getCurrentUser, logout } from "../../api/authApi";
 import type { DiscountType } from "../../types/invoice";
+import type { Product } from "../../types/catalog";
 import "./cashier.css";
 
 export function CashierCartPage() {
   const currentUser = getCurrentUser();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsStatus, setProductsStatus] = useState<"loading" | "idle" | "error">("loading");
   const [cart, setCart] = useState<CartLine[]>([]);
   const [search, setSearch] = useState("");
   const [discountType, setDiscountType] = useState<DiscountType | "">("");
@@ -22,15 +25,41 @@ export function CashierCartPage() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [receipt, setReceipt] = useState<{
     invoiceNumber: number;
-    lines: CartLine[];
+    lines: {
+      productId: number;
+      productName: string;
+      unitSold: "piece" | "package";
+      quantity: number;
+      unitPrice: number;
+      lineTotal: number;
+    }[];
     subtotal: number;
     discountAmount: number;
     total: number;
     createdAt: Date;
   } | null>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    getAllProducts()
+      .then((data) => {
+        if (cancelled) return;
+        setProducts(data);
+        setProductsStatus("idle");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setProductsStatus("error");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   function addProduct(productId: number) {
-    const product = mockProducts.find((p) => p.id === productId);
+    const product = products.find((p) => p.id === productId);
     if (!product) return;
 
     setCart((prev) => {
@@ -55,7 +84,7 @@ export function CashierCartPage() {
     setCart((prev) => prev.filter((line) => line.product.id !== productId));
   }
 
-  const filteredProducts = mockProducts.filter((product) =>
+  const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(search.trim().toLowerCase())
   );
 
@@ -104,14 +133,28 @@ export function CashierCartPage() {
         discountValue: discountType ? discountNumber : null,
       });
 
-      setLastInvoiceNumber(response.invoiceNumber);
+      // The finalize response doesn't include per-item breakdown, so fetch the
+      // invoice we just created back from the server. This is the ONLY source
+      // of truth for what actually got saved (prices are snapshotted server-side
+      // and can differ from what the cart showed if a price changed).
+      const savedInvoice = await invoiceService.getByNumber(response.invoiceNumber);
+
+      setLastInvoiceNumber(savedInvoice.invoiceNumber);
       setReceipt({
-        invoiceNumber: response.invoiceNumber,
-        lines: cart,
-        subtotal,
-        discountAmount,
-        total,
-        createdAt: new Date(),
+        invoiceNumber: savedInvoice.invoiceNumber,
+        lines: savedInvoice.items.map((item) => ({
+          productId: item.productId,
+          productName:
+            products.find((p) => p.id === item.productId)?.name ?? `منتج #${item.productId}`,
+          unitSold: item.unitSold,
+          quantity: item.quantity,
+          unitPrice: item.unitPriceSnapshot,
+          lineTotal: item.lineTotal,
+        })),
+        subtotal: savedInvoice.subtotal,
+        discountAmount: savedInvoice.subtotal - savedInvoice.total,
+        total: savedInvoice.total,
+        createdAt: new Date(savedInvoice.createdAt),
       });
       setCart([]);
       setDiscountType("");
@@ -277,7 +320,11 @@ export function CashierCartPage() {
               </div>
             </div>
 
-            {filteredProducts.length === 0 ? (
+            {productsStatus === "loading" ? (
+              <p className="mt-10 text-center text-sm text-slate-400">جارٍ تحميل المنتجات...</p>
+            ) : productsStatus === "error" ? (
+              <p className="mt-10 text-center text-sm text-red-500">تعذّر تحميل المنتجات من الخادم.</p>
+            ) : filteredProducts.length === 0 ? (
               <p className="mt-10 text-center text-sm text-slate-400">لا توجد نتائج مطابقة</p>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
@@ -342,21 +389,17 @@ export function CashierCartPage() {
 
           <div className="receipt-divider" />
 
-          {receipt.lines.map((line) => {
-            const price =
-              line.unitSold === "package" ? line.product.pricePerPackage ?? 0 : line.product.pricePerPiece;
-            return (
-              <div key={line.product.id} className="receipt-item">
-                <div className="receipt-item-name">{line.product.name}</div>
-                <div className="receipt-item-detail">
-                  <span>
-                    {line.quantity} × {price.toFixed(2)}
-                  </span>
-                  <span>{(price * line.quantity).toFixed(2)}</span>
-                </div>
+          {receipt.lines.map((line) => (
+            <div key={line.productId} className="receipt-item">
+              <div className="receipt-item-name">{line.productName}</div>
+              <div className="receipt-item-detail">
+                <span>
+                  {line.quantity} × {line.unitPrice.toFixed(2)}
+                </span>
+                <span>{line.lineTotal.toFixed(2)}</span>
               </div>
-            );
-          })}
+            </div>
+          ))}
 
           <div className="receipt-divider" />
 

@@ -32,6 +32,21 @@ export default function AdminDashboard() {
           >
             + إضافة أصناف
           </Link>
+          {user?.permissions.includes("manage_inventory") && (
+            <Link
+              to="/stock"
+              style={{
+                background: "#0f766e",
+                color: "white",
+                padding: "0.5rem 1rem",
+                borderRadius: "0.5rem",
+                textDecoration: "none",
+                fontSize: "0.875rem",
+              }}
+            >
+              تعديل رصيد المخزون
+            </Link>
+          )}
           {user && <span>{user.fullName}</span>}
           <button onClick={logout}>تسجيل خروج</button>
         </div>

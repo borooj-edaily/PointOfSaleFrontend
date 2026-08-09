@@ -40,12 +40,12 @@ export default function Login() {
           navigate("/dashboard");
           break;
         case "InventoryOnly":
-          navigate("/reports");
+          navigate("/home");
           break;
         default:
-          // "Custom" or any future role: send them somewhere logged-in rather
-          // than silently bouncing back to the login screen.
-          navigate("/cashier");
+          // "Custom" or any future role: send them to the permission-aware
+          // staff home instead of guessing a single page for them.
+          navigate("/home");
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "حصل خطأ غير متوقع");

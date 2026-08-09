@@ -142,9 +142,9 @@ export default function AddProductsPage() {
       <header className="flex items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
         <div className="flex items-center gap-3">
           <Link
-            to="/dashboard"
+            to={currentUser?.role === "Admin" ? "/dashboard" : "/home"}
             className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/10"
-            aria-label="رجوع للوحة التحكم"
+            aria-label="رجوع"
           >
             <ArrowRight size={16} />
           </Link>

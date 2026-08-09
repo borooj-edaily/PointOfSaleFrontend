@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getDashboardStats, type DashboardStats } from "../api/dashboardApi";
 import { getCurrentUser, logout } from "../api/authApi";
 
@@ -17,8 +18,21 @@ export default function AdminDashboard() {
     <div style={{ minHeight: "100vh", background: "#0f172a", color: "white", padding: "2rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2rem" }}>
         <h1>لوحة تحكم الادمن</h1>
-        <div>
-          {user && <span style={{ marginLeft: "1rem" }}>{user.fullName}</span>}
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <Link
+            to="/products"
+            style={{
+              background: "#059669",
+              color: "white",
+              padding: "0.5rem 1rem",
+              borderRadius: "0.5rem",
+              textDecoration: "none",
+              fontSize: "0.875rem",
+            }}
+          >
+            + إضافة أصناف
+          </Link>
+          {user && <span>{user.fullName}</span>}
           <button onClick={logout}>تسجيل خروج</button>
         </div>
       </div>

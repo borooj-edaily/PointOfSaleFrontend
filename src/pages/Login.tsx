@@ -21,28 +21,31 @@ export default function Login() {
     try {
       const response = await login({ username, password });
 
-      localStorage.setItem("token", response.token);
+      localStorage.setItem("token", response.accessToken);
 
       const storedUser: StoredUser = {
-        id: response.userId,
-        username: response.username,
-        fullName: response.fullName,
-        role: response.role,
+        id: response.user.id,
+        username: response.user.username,
+        fullName: response.user.fullName,
+        role: response.user.role,
+        permissions: response.user.permissions,
       };
       localStorage.setItem("user", JSON.stringify(storedUser));
 
-      switch (response.role) {
+      switch (response.user.role) {
         case "Cashier":
           navigate("/cashier");
           break;
         case "Admin":
           navigate("/dashboard");
           break;
-        case "Manager":
+        case "InventoryOnly":
           navigate("/reports");
           break;
         default:
-          navigate("/");
+          // "Custom" or any future role: send them somewhere logged-in rather
+          // than silently bouncing back to the login screen.
+          navigate("/cashier");
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "حصل خطأ غير متوقع");

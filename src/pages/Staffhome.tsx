@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Boxes, PackagePlus, ShoppingCart } from "lucide-react";
+import { Boxes, PackagePlus, ShoppingCart, Tag } from "lucide-react";
 import { getCurrentUser, logout } from "../api/authApi";
 
 interface ActionCard {
@@ -14,6 +14,12 @@ export default function StaffHome() {
   const permissions = user?.permissions ?? [];
 
   const cards: ActionCard[] = [
+    permissions.includes("manage_products") && {
+      to: "/categories",
+      label: "الكاتيجوريز",
+      description: "إضافة أو تعطيل تصنيفات الأصناف",
+      icon: Tag,
+    },
     permissions.includes("manage_inventory") && {
       to: "/stock",
       label: "تعديل رصيد المخزون",

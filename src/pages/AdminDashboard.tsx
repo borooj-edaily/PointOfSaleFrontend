@@ -20,6 +20,19 @@ export default function AdminDashboard() {
         <h1>لوحة تحكم الادمن</h1>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <Link
+            to="/categories"
+            style={{
+              background: "#7c3aed",
+              color: "white",
+              padding: "0.5rem 1rem",
+              borderRadius: "0.5rem",
+              textDecoration: "none",
+              fontSize: "0.875rem",
+            }}
+          >
+            الكاتيجوريز
+          </Link>
+          <Link
             to="/products"
             style={{
               background: "#059669",

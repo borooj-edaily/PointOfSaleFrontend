@@ -11,6 +11,7 @@ import { ExchangeScreen } from "../features/exchange/ExchangeScreen";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PermissionRoute } from "./PermissionRoute";
 import { RoleRoute } from "./Roleroute";
+import CategoriesPage from "../pages/CategoriesPage"; 
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+
   {
     path: "/exchange",
     element: (
@@ -81,6 +83,14 @@ const router = createBrowserRouter([
       </PermissionRoute>
     ),
   },
+  {
+  path: "/categories",
+  element: (
+    <PermissionRoute permission="manage_products">
+      <CategoriesPage />
+    </PermissionRoute>
+  ),
+},
 ]);
 
 export function AppRoutes() {

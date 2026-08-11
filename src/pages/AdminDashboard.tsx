@@ -43,7 +43,7 @@ export default function AdminDashboard() {
               fontSize: "0.875rem",
             }}
           >
-            + إضافة أصناف
+            الأصناف
           </Link>
           {user?.permissions.includes("manage_inventory") && (
             <Link

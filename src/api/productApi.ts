@@ -60,3 +60,6 @@ export interface CreateProductPayload {
 export function createProduct(payload: CreateProductPayload): Promise<{ id: number }> {
   return httpClient.post<{ id: number }>("/products", payload);
 }
+export function deactivateProduct(id: number, updatedByUserId: number | null): Promise<void> {
+  return httpClient.patch<void>(`/products/${id}/deactivate`, { id, updatedByUserId });
+}

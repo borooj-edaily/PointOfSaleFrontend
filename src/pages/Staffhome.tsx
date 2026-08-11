@@ -28,8 +28,8 @@ export default function StaffHome() {
     },
     permissions.includes("manage_products") && {
       to: "/products",
-      label: "إضافة أصناف",
-      description: "تعريف صنف جديد بالنظام مع سعره وطريقة بيعه",
+      label: "الأصناف",
+      description: "عرض كل الأصناف، إضافة صنف جديد، أو تعطيل صنف",
       icon: PackagePlus,
     },
     permissions.includes("create_invoice") && {

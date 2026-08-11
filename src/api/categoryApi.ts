@@ -1,6 +1,10 @@
 import { httpClient } from "./httpClient";
 import type { Category, CreateCategoryRequest } from "../types/category";
 
+// أعد تصدير Category عشان أي ملف يقدر يستوردها من هون مباشرة
+// (بنفس نمط productApi.ts اللي بيصدّر SellByType مباشرة من جواه)
+export type { Category };
+
 export async function getAllCategories(params?: { onlyActive?: boolean }): Promise<Category[]> {
   const query = params?.onlyActive ? "?onlyActive=true" : "";
   return httpClient.get<Category[]>(`/categories${query}`);

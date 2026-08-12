@@ -5,6 +5,7 @@ export interface Product {
   pricePerPackage: number | null;
   piecesPerPackage: number | null;
   stockInPieces: number;
+  isActive: boolean;
 }
 
 export interface User {

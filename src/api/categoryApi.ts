@@ -18,6 +18,23 @@ export async function createCategory(data: CreateCategoryRequest): Promise<{ id:
   return httpClient.post<{ id: number }>("/categories", data);
 }
 
+// Mirrors Pos.Api/Features/Categories/Update/UpdateCategoryCommand.cs
+export interface UpdateCategoryRequest {
+  name: string;
+}
+
+export async function updateCategory(
+  id: number,
+  data: UpdateCategoryRequest,
+  updatedByUserId: number | null
+): Promise<void> {
+  return httpClient.patch<void>(`/categories/${id}`, { id, ...data, updatedByUserId });
+}
+
 export async function deactivateCategory(id: number, updatedByUserId: number | null): Promise<void> {
   return httpClient.patch<void>(`/categories/${id}/deactivate`, { id, updatedByUserId });
+}
+
+export function activateCategory(id: number, updatedByUserId: number | null): Promise<void> {
+  return httpClient.patch<void>(`/categories/${id}/activate`, { id, updatedByUserId });
 }

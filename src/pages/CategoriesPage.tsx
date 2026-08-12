@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Loader2, Plus, Tag, X } from "lucide-react";
-import { getAllCategories, createCategory, deactivateCategory } from "../api/categoryApi";
+import { getAllCategories, createCategory, deactivateCategory, activateCategory } from "../api/categoryApi";
 import type { Category } from "../types/category";
 import { getCurrentUser } from "../api/authApi";
 import { ApiError } from "../api/httpClient";
@@ -20,6 +20,7 @@ export default function CategoriesPage() {
   const [saving, setSaving] = useState(false);
 
   const [deactivatingId, setDeactivatingId] = useState<number | null>(null);
+  const [activatingId, setActivatingId] = useState<number | null>(null);
 
   function loadCategories() {
     setIsLoading(true);
@@ -73,6 +74,18 @@ export default function CategoriesPage() {
       alert(err instanceof ApiError ? err.message : "تعذّر تعطيل الكاتيجوري.");
     } finally {
       setDeactivatingId(null);
+    }
+  }
+
+  async function handleActivate(id: number) {
+    setActivatingId(id);
+    try {
+      await activateCategory(id, currentUser?.id ?? null);
+      loadCategories();
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "تعذّر تفعيل الكاتيجوري.");
+    } finally {
+      setActivatingId(null);
     }
   }
 
@@ -161,7 +174,7 @@ export default function CategoriesPage() {
                         </span>
                       </td>
                       <td className="py-3 pr-3 text-left">
-                        {cat.isActive && (
+                        {cat.isActive ? (
                           <button
                             type="button"
                             onClick={() => handleDeactivate(cat.id)}
@@ -169,6 +182,15 @@ export default function CategoriesPage() {
                             className="text-sm font-medium text-red-600 transition hover:text-red-800 disabled:opacity-50"
                           >
                             {deactivatingId === cat.id ? "جارِ التعطيل..." : "تعطيل"}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleActivate(cat.id)}
+                            disabled={activatingId === cat.id}
+                            className="text-sm font-medium text-emerald-600 transition hover:text-emerald-800 disabled:opacity-50"
+                          >
+                            {activatingId === cat.id ? "جارِ التفعيل..." : "تفعيل"}
                           </button>
                         )}
                       </td>

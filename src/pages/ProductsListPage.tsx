@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Boxes, Loader2, Plus } from "lucide-react";
-import { getAllProducts, deactivateProduct } from "../api/productApi";
+import { getAllProducts, deactivateProduct, activateProduct } from "../api/productApi";
 import { getAllCategories, type Category } from "../api/categoryApi";
 import { getCurrentUser } from "../api/authApi";
 import { ApiError } from "../api/httpClient";
@@ -23,9 +23,10 @@ export default function ProductsListPage() {
 
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [search, setSearch] = useState("");
-  const [onlyActive, setOnlyActive] = useState(true);
+  const [onlyActive, setOnlyActive] = useState(false);
 
   const [deactivatingId, setDeactivatingId] = useState<number | null>(null);
+  const [activatingId, setActivatingId] = useState<number | null>(null);
 
   function loadProducts() {
     setIsLoading(true);
@@ -67,6 +68,18 @@ export default function ProductsListPage() {
       alert(err instanceof ApiError ? err.message : "تعذّر تعطيل الصنف.");
     } finally {
       setDeactivatingId(null);
+    }
+  }
+
+  async function handleActivate(id: number) {
+    setActivatingId(id);
+    try {
+      await activateProduct(id, currentUser?.id ?? null);
+      loadProducts();
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "تعذّر تفعيل الصنف.");
+    } finally {
+      setActivatingId(null);
     }
   }
 
@@ -154,6 +167,7 @@ export default function ProductsListPage() {
                     <th className="px-3 py-2.5 font-medium">سعر الحبة</th>
                     <th className="px-3 py-2.5 font-medium">سعر الباكيج</th>
                     <th className="px-3 py-2.5 font-medium">المخزون</th>
+                    <th className="px-3 py-2.5 font-medium">الحالة</th>
                     <th className="py-2.5 pr-3"></th>
                   </tr>
                 </thead>
@@ -180,15 +194,37 @@ export default function ProductsListPage() {
                           {p.stockInPieces} حبة
                         </span>
                       </td>
-                      <td className="py-3 pr-3 text-left">
-                        <button
-                          type="button"
-                          onClick={() => handleDeactivate(p.id)}
-                          disabled={deactivatingId === p.id}
-                          className="text-sm font-medium text-red-600 transition hover:text-red-800 disabled:opacity-50"
+                      <td className="px-3 py-3">
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${
+                            p.isActive
+                              ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+                              : "border-slate-200 bg-slate-100 text-slate-500"
+                          }`}
                         >
-                          {deactivatingId === p.id ? "جارِ التعطيل..." : "تعطيل"}
-                        </button>
+                          {p.isActive ? "فعّال" : "معطّل"}
+                        </span>
+                      </td>
+                      <td className="py-3 pr-3 text-left">
+                        {p.isActive ? (
+                          <button
+                            type="button"
+                            onClick={() => handleDeactivate(p.id)}
+                            disabled={deactivatingId === p.id}
+                            className="text-sm font-medium text-red-600 transition hover:text-red-800 disabled:opacity-50"
+                          >
+                            {deactivatingId === p.id ? "جارِ التعطيل..." : "تعطيل"}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleActivate(p.id)}
+                            disabled={activatingId === p.id}
+                            className="text-sm font-medium text-emerald-600 transition hover:text-emerald-800 disabled:opacity-50"
+                          >
+                            {activatingId === p.id ? "جارِ التفعيل..." : "تفعيل"}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

@@ -43,98 +43,140 @@ export default function Login() {
           navigate("/home");
           break;
         default:
-          // "Custom" or any future role: send them to the permission-aware
-          // staff home instead of guessing a single page for them.
           navigate("/home");
       }
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "حصل خطأ غير متوقع");
+      setError(error instanceof Error ? error.message : "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div dir="rtl" className="flex min-h-screen items-center justify-center bg-[#F1F2EF] px-4 py-10">
-      <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl lg:grid-cols-2">
-        {/* Brand panel */}
-        <div className="hidden flex-col justify-center gap-4 bg-[#1C2333] p-12 text-white lg:flex">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600">
-            <ShoppingCart size={26} />
+    <div 
+      dir="ltr" 
+      className="relative flex min-h-screen w-full items-center justify-center bg-cover bg-center bg-no-repeat"
+      style={{
+        padding: "20px",
+        backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?q=80&w=1920&auto=format&fit=crop')`,
+      }}
+    >
+      {/* Container الرئيسي بالمنتصف */}
+      <div className="relative w-full max-w-xl" style={{ marginTop: "30px", marginBottom: "30px" }}>
+
+        {/* الأيقونات الصفراء العلوية مع تباعد صريح */}
+        <div className="absolute -top-7 right-8 z-20 flex" style={{ gap: "12px" }}>
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-400 text-slate-950 shadow-2xl border-2 border-amber-300">
+            <ShoppingCart size={26} className="stroke-[2.5]" />
           </div>
-          <h1 className="text-3xl font-bold leading-tight">نظام نقطة البيع</h1>
-          <p className="text-sm leading-relaxed text-slate-300">
-            إدارة المبيعات والمخزون والفواتير من مكان واحد.
-          </p>
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-400 text-slate-950 shadow-2xl border-2 border-amber-300">
+            <User size={26} className="stroke-[2.5]" />
+          </div>
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-400 text-slate-950 shadow-2xl border-2 border-amber-300">
+            <Lock size={26} className="stroke-[2.5]" />
+          </div>
         </div>
 
-        {/* Form panel */}
-        <div className="p-8 sm:p-12">
-          <div className="mb-8 text-center lg:hidden">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 text-white">
-              <ShoppingCart size={24} />
-            </div>
+        {/* الكارت الشفاف مع محاذاة عمودية لتوزيع العناصر بالتساوي داخل المربع الاسود */}
+        <div 
+          className="relative rounded-3xl border border-white/15 bg-black/85 shadow-2xl backdrop-blur-2xl flex flex-col justify-between"
+          style={{
+            padding: "40px 35px",
+            minHeight: "580px",
+            boxSizing: "border-box"
+          }}
+        >
+          {/* 1. قسم العناوين */}
+          <div className="text-left" style={{ marginBottom: "30px" }}>
+            <span className="text-sm font-black tracking-widest text-amber-400 uppercase block" style={{ marginBottom: "8px" }}>
+              AL-ISRAA Supermarket
+            </span>
+            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+              Sign In
+            </h1>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-900">أهلاً بعودتك</h2>
-            <p className="mt-1.5 text-sm text-slate-500">سجّلي دخولك للمتابعة</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                اسم المستخدم
-              </label>
-              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 focus-within:border-emerald-400 focus-within:bg-white">
-                <User size={16} className="shrink-0 text-slate-400" />
-                <input
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="اسم المستخدم"
-                  className="w-full bg-transparent py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                />
+          {/* 2. قسم الإدخال */}
+          <form onSubmit={handleLogin} className="flex-1 flex flex-col justify-center">
+            
+            {/* حقل Username مع مسافة إجبارية بالأسفل */}
+            <div 
+              className="flex w-full items-center overflow-hidden rounded-2xl bg-white shadow-xl"
+              style={{ height: "64px", marginBottom: "28px" }}
+            >
+              <div className="flex h-full w-16 shrink-0 items-center justify-center bg-amber-400 text-slate-950">
+                <User size={26} className="stroke-[2.5]" />
               </div>
+              <input
+                id="username"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="username"
+                className="h-full w-full bg-transparent px-5 text-xl font-semibold text-slate-900 outline-none placeholder:text-slate-400"
+              />
             </div>
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                كلمة المرور
-              </label>
-              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 focus-within:border-emerald-400 focus-within:bg-white">
-                <Lock size={16} className="shrink-0 text-slate-400" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="كلمة المرور"
-                  className="w-full bg-transparent py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="shrink-0 text-slate-400 transition hover:text-slate-600"
-                  aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+            {/* حقل Password مع مسافة إجبارية بالأسفل */}
+            <div 
+              className="flex w-full items-center overflow-hidden rounded-2xl bg-white shadow-xl"
+              style={{ height: "64px", marginBottom: "28px" }}
+            >
+              <div className="flex h-full w-16 shrink-0 items-center justify-center bg-amber-400 text-slate-950">
+                <Lock size={26} className="stroke-[2.5]" />
               </div>
+              <input
+                id="password"
+                required
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="password"
+                className="h-full w-full bg-transparent px-5 text-xl font-semibold text-slate-900 outline-none placeholder:text-slate-400"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="flex h-full items-center px-5 text-slate-500 hover:text-slate-900 focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
+              </button>
             </div>
 
+            {/* رسالة الخطأ */}
             {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">
+              <div 
+                className="rounded-2xl bg-red-500/20 p-4 text-center text-base font-bold text-red-200 border border-red-500/40"
+                style={{ marginBottom: "24px" }}
+              >
                 {error}
-              </p>
+              </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-xl bg-emerald-600 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
-            >
-              {loading ? "جارٍ تسجيل الدخول..." : "تسجيل الدخول"}
-            </button>
+            {/* 3. قسم الزر السفلي */}
+            <div className="flex justify-end" style={{ marginTop: "12px" }}>
+              <button
+                type="submit"
+                disabled={loading}
+                className="rounded-2xl bg-amber-400 px-10 py-4 text-xl font-black text-slate-950 shadow-2xl transition-all hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-amber-400/50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                style={{ minWidth: "160px" }}
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="h-6 w-6 animate-spin text-slate-950" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in...
+                  </span>
+                ) : (
+                  "Sign In"
+                )}
+              </button>
+            </div>
           </form>
+
         </div>
       </div>
     </div>

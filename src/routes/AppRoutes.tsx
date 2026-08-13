@@ -11,7 +11,7 @@ import { ExchangeScreen } from "../features/exchange/ExchangeScreen";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PermissionRoute } from "./PermissionRoute";
 import { RoleRoute } from "./Roleroute";
-
+import AuditLogsPage from "../pages/AuditLogsPage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -49,6 +49,17 @@ const router = createBrowserRouter([
       </RoleRoute>
     ),
   },
+
+{
+  path: "/audit-logs",
+  element: (
+    <RoleRoute role="Admin">
+      <AuditLogsPage />
+    </RoleRoute>
+  ),
+},
+
+
   {
     path: "/home",
     element: (

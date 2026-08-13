@@ -5,7 +5,7 @@ import type { Product } from "../types/catalog";
 export type SellByType = 1 | 2 | 3;
 
 // Mirrors Pos.Api/Features/Products/GetAll/ProductDto.cs
-interface ProductDto {
+export interface ProductDto {
   id: number;
   name: string;
   categoryId: number;
@@ -36,13 +36,20 @@ export interface GetProductsParams {
 }
 
 export async function getAllProducts(params: GetProductsParams = {}): Promise<Product[]> {
+  const dtos = await getAllProductDetails(params);
+  return dtos.map(mapProduct);
+}
+
+/** Full backend record for management screens; cart screens use getAllProducts instead. */
+export async function getAllProductDetails(
+  params: GetProductsParams = {}
+): Promise<ProductDto[]> {
   const query = new URLSearchParams();
   query.set("onlyActive", String(params.onlyActive ?? true));
   if (params.categoryId) query.set("categoryId", String(params.categoryId));
   if (params.search) query.set("search", params.search);
 
-  const dtos = await httpClient.get<ProductDto[]>(`/products?${query.toString()}`);
-  return dtos.map(mapProduct);
+  return httpClient.get<ProductDto[]>(`/products?${query.toString()}`);
 }
 
 // Mirrors Pos.Api/Features/Products/Create/CreateProductCommand.cs
@@ -59,4 +66,51 @@ export interface CreateProductPayload {
 
 export function createProduct(payload: CreateProductPayload): Promise<{ id: number }> {
   return httpClient.post<{ id: number }>("/products", payload);
+}
+
+// Mirrors Pos.Api/Features/Products/Update/UpdateProductCommand.cs
+export interface UpdateProductPayload {
+  id: number;
+  name: string;
+  categoryId: number;
+  sellBy: SellByType;
+  piecesPerPackage: number | null;
+  pricePerPiece: number | null;
+  pricePerPackage: number | null;
+  updatedByUserId: number | null;
+}
+
+export interface DeactivateProductPayload {
+  id: number;
+  updatedByUserId: number | null;
+}
+
+export function getProductById(productId: number): Promise<ProductDto> {
+  return httpClient.get<ProductDto>(`/products/${productId}`);
+}
+
+export function updateProduct(
+  productId: number,
+  payload: UpdateProductPayload
+): Promise<void> {
+  return httpClient.put<void>(`/products/${productId}`, payload);
+}
+
+export function deactivateProduct(
+  productId: number,
+  payload: DeactivateProductPayload
+): Promise<void> {
+  return httpClient.patch<void>(`/products/${productId}/deactivate`, payload);
+}
+
+export function getLowStockProducts(
+  threshold = 10,
+  onlyOutOfStock = false
+): Promise<ProductDto[]> {
+  const query = new URLSearchParams({
+    threshold: String(threshold),
+    onlyOutOfStock: String(onlyOutOfStock),
+  });
+
+  return httpClient.get<ProductDto[]>(`/products/low-stock?${query.toString()}`);
 }

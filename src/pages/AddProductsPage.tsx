@@ -138,7 +138,7 @@ export default function AddProductsPage() {
   const showPackageFields = form.sellBy === "package" || form.sellBy === "both";
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F1F2EF]">
+    <div dir="rtl" className="pos-page">
       <header className="flex items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
         <div className="flex items-center gap-3">
           <Link

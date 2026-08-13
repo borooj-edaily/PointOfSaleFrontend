@@ -166,7 +166,7 @@ export function ExchangeScreen() {
   }
 
   return (
-    <div dir="rtl" className="flex h-screen flex-col bg-[#F1F2EF]">
+    <div dir="rtl" className="pos-page flex min-h-screen flex-col">
       {/* Header */}
       <header className="flex shrink-0 items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
         <div>

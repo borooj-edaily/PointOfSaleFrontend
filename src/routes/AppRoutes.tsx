@@ -12,6 +12,11 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { PermissionRoute } from "./PermissionRoute";
 import { RoleRoute } from "./Roleroute";
 import AuditLogsPage from "../pages/AuditLogsPage";
+import CategoryManagementPage from "../pages/CategoryManagementPage";
+import { ReturnScreen } from "../features/returns/ReturnScreen";
+import ProductManagementPage from "../pages/ProductManagementPage";
+import UserManagementPage from "../pages/UserManagementPage";
+import ShiftManagementPage from "../pages/ShiftManagementPage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -33,6 +38,44 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+
+
+
+
+
+
+
+
+
+{
+  path: "/returns",
+  element: (
+    <ProtectedRoute>
+      <ReturnScreen />
+    </ProtectedRoute>
+  ),
+},
+
+
+{
+  path: "/categories",
+  element: (
+    <PermissionRoute permission="manage_products">
+      <CategoryManagementPage />
+    </PermissionRoute>
+  ),
+},
+
+
+
+
+
+
+
+
+
+
+
   {
     path: "/exchange",
     element: (
@@ -74,6 +117,30 @@ const router = createBrowserRouter([
       <PermissionRoute permission="manage_products">
         <AddProductsPage />
       </PermissionRoute>
+    ),
+  },
+  {
+    path: "/product-management",
+    element: (
+      <PermissionRoute permission="manage_products">
+        <ProductManagementPage />
+      </PermissionRoute>
+    ),
+  },
+  {
+    path: "/users",
+    element: (
+      <RoleRoute role="Admin">
+        <UserManagementPage />
+      </RoleRoute>
+    ),
+  },
+  {
+    path: "/shifts",
+    element: (
+      <ProtectedRoute>
+        <ShiftManagementPage />
+      </ProtectedRoute>
     ),
   },
   {

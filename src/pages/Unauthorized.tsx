@@ -5,18 +5,7 @@ export default function Unauthorized() {
   const user = getCurrentUser();
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "1rem",
-        background: "#0f172a",
-        color: "white",
-      }}
-    >
+    <div className="pos-page flex min-h-screen flex-col items-center justify-center gap-4 px-5 text-white" dir="rtl">
       <h1>ما عندك صلاحية توصل لهاي الصفحة</h1>
       {user && (
         <p>

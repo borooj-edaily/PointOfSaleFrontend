@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Boxes, PackagePlus, ShoppingCart } from "lucide-react";
+import { Boxes, Clock3, PackagePlus, ShoppingCart } from "lucide-react";
 import { getCurrentUser, logout } from "../api/authApi";
 
 interface ActionCard {
@@ -32,10 +32,16 @@ export default function StaffHome() {
       description: "فتح فاتورة بيع جديدة",
       icon: ShoppingCart,
     },
+    {
+      to: "/shifts",
+      label: "إدارة الدوام",
+      description: "تسجيل بداية ونهاية الدوام ومراجعة الدوامات السابقة",
+      icon: Clock3,
+    },
   ].filter(Boolean) as ActionCard[];
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F1F2EF]">
+    <div dir="rtl" className="pos-page">
       <header className="flex items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-400">نظام نقطة البيع</p>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, ArrowLeftRight, Search, Users } from "lucide-react";
+import { LogOut, ArrowLeftRight, Search, Users   , RotateCcw } from "lucide-react";
 import { CartItemRow, type CartLine } from "./components/CartItemRow";
 import { CheckoutScreen } from "./CheckoutScreen";
 import { getAllProducts } from "../../api/productApi";
@@ -171,7 +171,7 @@ export function CashierCartPage() {
   }
 
   return (
-    <div dir="rtl" className="h-screen bg-[#F1F2EF]">
+    <div dir="rtl" className="pos-page min-h-screen">
       <div className="cashier-screen flex h-screen flex-col">
         {/* Header */}
         <header className="flex shrink-0 items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
@@ -193,6 +193,13 @@ export function CashierCartPage() {
               onClick={logout}
               className="flex items-center gap-1.5 rounded-lg border border-slate-600 px-3 py-1.5 transition hover:bg-slate-700"
             >
+              <Link
+  to="/returns"
+  className="flex items-center gap-1.5 rounded-lg border border-slate-600 px-3 py-1.5 transition hover:bg-slate-700"
+>
+  <RotateCcw size={14} />
+  إرجاع فاتورة
+</Link>
               <LogOut size={14} />
               تسجيل خروج
             </button>

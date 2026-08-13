@@ -11,6 +11,8 @@ import {
   TrendingUp,
   FileSpreadsheet,
   ClipboardList,
+  Users,
+  Clock3,
 } from "lucide-react";
 import {
   getDashboardStats,
@@ -90,7 +92,19 @@ export default function AdminDashboard() {
               <PlusCircle size={20} className="stroke-[2.5]" />
               <span>إضافة أصناف</span>
             </Link>
-
+<Link
+  to="/categories"
+  className="flex items-center rounded-2xl bg-white/10 border border-white/20 font-bold text-white shadow-lg transition-all hover:bg-white/20 active:scale-95"
+  style={{
+    padding: "12px 20px",
+    gap: "8px",
+    fontSize: "1rem",
+    textDecoration: "none",
+  }}
+>
+  <FileSpreadsheet size={20} className="stroke-[2.5]" />
+  <span>إدارة الكاتيجوريز</span>
+</Link>
             {user?.permissions.includes("manage_inventory") && (
               <Link
                 to="/stock"
@@ -119,6 +133,33 @@ export default function AdminDashboard() {
             >
               <ClipboardList size={20} />
               <span>سجل العمليات</span>
+            </Link>
+
+            <Link
+              to="/product-management"
+              className="flex items-center rounded-2xl border border-white/20 bg-white/10 font-bold text-white shadow-lg transition-all hover:bg-white/20 active:scale-95"
+              style={{ padding: "12px 20px", gap: "8px", fontSize: "1rem", textDecoration: "none" }}
+            >
+              <Boxes size={20} />
+              <span>إدارة المنتجات</span>
+            </Link>
+
+            <Link
+              to="/users"
+              className="flex items-center rounded-2xl border border-white/20 bg-white/10 font-bold text-white shadow-lg transition-all hover:bg-white/20 active:scale-95"
+              style={{ padding: "12px 20px", gap: "8px", fontSize: "1rem", textDecoration: "none" }}
+            >
+              <Users size={20} />
+              <span>المستخدمون</span>
+            </Link>
+
+            <Link
+              to="/shifts"
+              className="flex items-center rounded-2xl border border-white/20 bg-white/10 font-bold text-white shadow-lg transition-all hover:bg-white/20 active:scale-95"
+              style={{ padding: "12px 20px", gap: "8px", fontSize: "1rem", textDecoration: "none" }}
+            >
+              <Clock3 size={20} />
+              <span>الدوام</span>
             </Link>
 
             {user && (

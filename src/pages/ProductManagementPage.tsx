@@ -1,9 +1,10 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AlertTriangle, ArrowRight, Edit3, PackagePlus, Power, RefreshCw } from "lucide-react";
 import { getCurrentUser } from "../api/authApi";
 import { ApiError } from "../api/httpClient";
 import {
+  activateProduct,
   deactivateProduct,
   getAllProductDetails,
   getLowStockProducts,
@@ -19,6 +20,10 @@ const emptyEdit = { name: "", categoryId: "", sellBy: "1", piecesPerPackage: "",
 
 export default function ProductManagementPage() {
   const user = getCurrentUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryIdFromUrl = searchParams.get("categoryId") ?? "";
+  const categoryNameFromUrl = searchParams.get("categoryName") ?? "";
+
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<ProductDto | null>(null);
@@ -29,6 +34,7 @@ export default function ProductManagementPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
 
   async function loadProducts() {
     setLoading(true);
@@ -75,11 +81,45 @@ export default function ProductManagementPage() {
     catch (err) { setError(err instanceof Error ? err.message : "Could not deactivate product."); }
   }
 
+  async function activate(product: ProductDto) {
+    try { await activateProduct(product.id, user?.id ?? null); setSuccess("Product activated."); void loadProducts(); }
+    catch (err) { setError(err instanceof Error ? err.message : "Could not activate product."); }
+  }
+
+  function clearCategoryFilter() {
+    setSearchParams({});
+  }
+
+  const visibleProducts = products
+    .filter((p) => (categoryIdFromUrl ? String(p.categoryId) === categoryIdFromUrl : true))
+    .filter((p) => {
+      if (statusFilter === "active") return p.isActive;
+      if (statusFilter === "inactive") return !p.isActive;
+      return true;
+    });
+
+  const pageTitle = categoryNameFromUrl ? `${categoryNameFromUrl} — Products` : "Product management";
+
   return <div dir="rtl" className="pos-page px-5 py-8"><main className="mx-auto max-w-7xl">
     <header className="pos-panel mb-6 flex flex-wrap items-center justify-between gap-4 p-6">
-      <div className="flex items-center gap-3"><Link to="/dashboard" className="pos-icon-button" aria-label="Back"><ArrowRight size={20} /></Link><div><p className="pos-kicker">AL-ISRAA Supermarket</p><h1 className="text-2xl font-black text-white">Product management</h1></div></div>
+      <div className="flex items-center gap-3"><Link to="/dashboard" className="pos-icon-button" aria-label="Back"><ArrowRight size={20} /></Link><div><p className="pos-kicker">AL-ISRAA Supermarket</p><h1 className="text-2xl font-black text-white">{pageTitle}</h1></div></div>
       <Link to="/products/add" className="pos-primary"><PackagePlus size={18} /> Add new product</Link>
     </header>
+
+    {categoryNameFromUrl && (
+      <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-5 py-3.5">
+        <p className="text-sm text-amber-200">
+          Showing products in category: <span className="font-bold text-white">{categoryNameFromUrl}</span>
+        </p>
+        <button
+          onClick={clearCategoryFilter}
+          className="rounded-md bg-amber-400 px-5 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-amber-300 active:scale-95"
+        >
+          Show all products
+        </button>
+      </div>
+    )}
+
     {error && <p className="pos-error mb-5">{error}</p>}{success && <p className="pos-success mb-5">{success}</p>}
     <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
       <section className="pos-panel h-fit p-6"><h2 className="mb-4 text-lg font-bold text-white">{editing ? "Edit product" : "Select a product to edit"}</h2>
@@ -92,10 +132,45 @@ export default function ProductManagementPage() {
           <Input label="Package price" type="number" value={form.pricePerPackage} onChange={(value) => setForm({ ...form, pricePerPackage: value })} required={form.sellBy === "2" || form.sellBy === "3"} />
           <div className="flex gap-2"><button disabled={saving} className="pos-primary flex-1">{saving ? "Saving..." : "Save"}</button><button type="button" onClick={() => { setEditing(null); setForm(emptyEdit); }} className="pos-secondary">Cancel</button></div>
         </form> : <p className="text-sm text-slate-300">You can edit product details or deactivate it from the list.</p>}</section>
-      <section className="pos-panel p-6"><div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-bold text-white">All products</h2><button onClick={() => void loadProducts()} className="pos-icon-button" aria-label="Refresh"><RefreshCw size={17} /></button></div>
-        {loading ? <p className="pos-muted">Loading...</p> : <div className="overflow-x-auto"><table className="w-full min-w-[650px] text-right text-sm"><thead className="border-b border-white/15 text-amber-300"><tr><th className="p-3">Product</th><th className="p-3">Category</th><th className="p-3">Stock</th><th className="p-3">Status</th><th className="p-3" /></tr></thead><tbody>{products.map((product) => <tr key={product.id} className="border-b border-white/10 text-slate-200"><td className="p-3 font-semibold">{product.name}</td><td className="p-3">{product.categoryName}</td><td className="p-3">{product.stockInPieces}</td><td className="p-3">{product.isActive ? "Active" : "Inactive"}</td><td className="flex gap-2 p-3"><button onClick={() => void beginEdit(product.id)} className="pos-table-button"><Edit3 size={15} /> Edit</button>{product.isActive && <button onClick={() => void deactivate(product)} className="pos-danger"><Power size={15} /> Disable</button>}</td></tr>)}</tbody></table></div>}</section>
+      <section className="pos-panel p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-bold text-white">{categoryNameFromUrl ? `${categoryNameFromUrl} products` : "All products"}</h2>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-1.5">
+              {(
+                [
+                  { value: "all", label: "All" },
+                  { value: "active", label: "Active" },
+                  { value: "inactive", label: "Disabled" },
+                ] as const
+              ).map((opt) => {
+                const activeColor =
+                  opt.value === "active"
+                    ? "bg-emerald-500/20 text-emerald-400"
+                    : opt.value === "inactive"
+                      ? "bg-red-500/20 text-red-400"
+                      : "bg-amber-400 text-slate-950";
+
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setStatusFilter(opt.value)}
+                    className={`rounded-lg px-4 py-2 text-sm font-bold transition ${
+                      statusFilter === opt.value ? activeColor : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            <button onClick={() => void loadProducts()} className="pos-icon-button" aria-label="Refresh"><RefreshCw size={17} /></button>
+          </div>
+        </div>
+        {loading ? <p className="pos-muted">Loading...</p> : visibleProducts.length === 0 ? <p className="pos-muted">No products in this category.</p> : <div className="overflow-x-auto"><table className="w-full min-w-[650px] text-right text-sm"><thead className="border-b border-white/15 text-amber-300"><tr><th className="p-3">Product</th><th className="p-3">Category</th><th className="p-3">Stock</th><th className="p-3">Status</th><th className="p-3" /></tr></thead><tbody>{visibleProducts.map((product) => <tr key={product.id} className={`border-b border-white/10 transition-opacity ${product.isActive ? "text-slate-200" : "text-slate-500 opacity-50"}`}><td className={`p-3 font-semibold ${!product.isActive ? "line-through" : ""}`}>{product.name}</td><td className="p-3">{product.categoryName}</td><td className="p-3">{product.stockInPieces}</td><td className="p-3"><span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${product.isActive ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>{product.isActive ? "Active" : "Disabled"}</span></td><td className="flex gap-2 p-3"><button onClick={() => void beginEdit(product.id)} className="pos-table-button"><Edit3 size={15} /> Edit</button>{product.isActive ? <button onClick={() => void deactivate(product)} className="pos-danger"><Power size={15} /> Disable</button> : <button onClick={() => void activate(product)} className="pos-table-button" style={{ color: "#34d399" }}><Power size={15} /> Enable</button>}</td></tr>)}</tbody></table></div>}</section>
     </div>
-    <section className="pos-panel mt-6 p-6"><div className="mb-4 flex flex-wrap items-center gap-3"><AlertTriangle className="text-amber-400" /><h2 className="font-bold text-white">Low stock alert</h2><input className="pos-input w-28" type="number" min="0" value={threshold} onChange={(e) => setThreshold(e.target.value)} /><button onClick={() => void loadLowStock()} className="pos-secondary">Show</button></div>{lowStock.length > 0 ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{lowStock.map((product) => <div key={product.id} className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-white"><p className="font-bold">{product.name}</p><p className="text-sm text-amber-200">Remaining: {product.stockInPieces}</p></div>)}</div> : <p className="pos-muted">Press “Show” to review low-stock products.</p>}</section>
+    <section className="pos-panel mt-6 p-6"><div className="mb-4 flex flex-wrap items-center gap-3"><AlertTriangle className="text-amber-400" /><h2 className="font-bold text-white">Low stock alert</h2><input className="pos-input w-28" type="number" min="0" value={threshold} onChange={(e) => setThreshold(e.target.value)} /><button onClick={() => void loadLowStock()} className="pos-secondary">Show</button></div>{lowStock.length > 0 ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{lowStock.map((product) => <div key={product.id} className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-white"><p className="font-bold">{product.name}</p><p className="text-sm text-amber-200">Remaining: {product.stockInPieces}</p></div>)}</div> : <p className="pos-muted">Press "Show" to review low-stock products.</p>}</section>
   </main></div>;
 }
 

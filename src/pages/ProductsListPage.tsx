@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Boxes, Loader2, Plus } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowRight, Boxes, Loader2, Plus, X } from "lucide-react";
 import { getAllProducts, deactivateProduct, activateProduct } from "../api/productApi";
 import { getAllCategories, type Category } from "../api/categoryApi";
 import { getCurrentUser } from "../api/authApi";
@@ -15,13 +15,17 @@ const SELL_BY_LABELS: Record<number, string> = {
 
 export default function ProductsListPage() {
   const currentUser = getCurrentUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const categoryIdFromUrl = searchParams.get("categoryId") ?? "";
+  const categoryNameFromUrl = searchParams.get("categoryName") ?? "";
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>(categoryIdFromUrl);
   const [search, setSearch] = useState("");
   const [onlyActive, setOnlyActive] = useState(false);
 
@@ -47,6 +51,12 @@ export default function ProductsListPage() {
     getAllCategories().then(setCategories).catch(() => setCategories([]));
   }, []);
 
+  // إذا تغيّر الرابط (مثلاً ضغط اسم كاتيجوري تانية)، حدّث الفلتر تلقائياً
+  useEffect(() => {
+    setCategoryFilter(categoryIdFromUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryIdFromUrl]);
+
   useEffect(() => {
     loadProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,6 +65,18 @@ export default function ProductsListPage() {
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
     loadProducts();
+  }
+
+  function clearCategoryFilter() {
+    setSearchParams({});
+    setCategoryFilter("");
+  }
+
+  function handleCategorySelectChange(value: string) {
+    setCategoryFilter(value);
+    // لو المستخدم غيّر الفلتر يدوياً من القائمة، امسح categoryName من الرابط
+    // (لأنه صار الفلتر يدوي مش قادم من ضغطة على كاتيجوري معيّنة)
+    setSearchParams(value ? { categoryId: value } : {});
   }
 
   async function handleDeactivate(id: number) {
@@ -83,6 +105,8 @@ export default function ProductsListPage() {
     }
   }
 
+  const pageTitle = categoryNameFromUrl ? categoryNameFromUrl : "كل الأصناف";
+
   return (
     <div dir="rtl" className="min-h-screen bg-[#F1F2EF]">
       <header className="flex items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
@@ -96,7 +120,7 @@ export default function ProductsListPage() {
           </Link>
           <div>
             <p className="text-xs uppercase tracking-wide text-slate-400">إدارة الأصناف</p>
-            <h1 className="text-lg font-semibold">كل الأصناف</h1>
+            <h1 className="text-lg font-semibold">{pageTitle}</h1>
           </div>
         </div>
         <Link
@@ -109,6 +133,22 @@ export default function ProductsListPage() {
       </header>
 
       <div className="mx-auto max-w-5xl px-6 py-8">
+        {categoryNameFromUrl && (
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5">
+            <p className="text-sm text-emerald-700">
+              عم تشوف أصناف كاتيجوري: <span className="font-semibold">{categoryNameFromUrl}</span>
+            </p>
+            <button
+              type="button"
+              onClick={clearCategoryFilter}
+              className="flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-900"
+            >
+              <X size={14} />
+              عرض كل الأصناف
+            </button>
+          </div>
+        )}
+
         <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <form onSubmit={handleSearchSubmit} className="mb-4 flex flex-wrap items-center gap-3">
             <input
@@ -120,7 +160,7 @@ export default function ProductsListPage() {
 
             <select
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+              onChange={(e) => handleCategorySelectChange(e.target.value)}
               className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white"
             >
               <option value="">كل الكاتيجوريز</option>

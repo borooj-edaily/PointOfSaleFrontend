@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Loader2, Plus, Tag, X } from "lucide-react";
-import { getAllCategories, createCategory, deactivateCategory, activateCategory } from "../api/categoryApi";
+import { ArrowRight, Loader2, Pencil, Plus, Tag, X } from "lucide-react";
+import {
+  getAllCategories,
+  createCategory,
+  updateCategory,
+  deactivateCategory,
+  activateCategory,
+} from "../api/categoryApi";
 import type { Category } from "../types/category";
 import { getCurrentUser } from "../api/authApi";
 import { ApiError } from "../api/httpClient";
@@ -18,6 +24,12 @@ export default function CategoriesPage() {
   const [newName, setNewName] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  // -------- تعديل --------
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editSaving, setEditSaving] = useState(false);
 
   const [deactivatingId, setDeactivatingId] = useState<number | null>(null);
   const [activatingId, setActivatingId] = useState<number | null>(null);
@@ -60,6 +72,37 @@ export default function CategoriesPage() {
       setFormError(err instanceof ApiError ? err.message : "حصل خطأ غير متوقع.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  function openEdit(cat: Category) {
+    setEditingCategory(cat);
+    setEditName(cat.name);
+    setEditError(null);
+  }
+
+  function closeEdit() {
+    setEditingCategory(null);
+    setEditSaving(false);
+  }
+
+  async function handleUpdate() {
+    if (!editingCategory) return;
+
+    if (!editName.trim()) {
+      setEditError("اسم الكاتيجوري مطلوب.");
+      return;
+    }
+
+    setEditSaving(true);
+    setEditError(null);
+    try {
+      await updateCategory(editingCategory.id, { name: editName.trim() }, currentUser?.id ?? null);
+      closeEdit();
+      loadCategories();
+    } catch (err) {
+      setEditError(err instanceof ApiError ? err.message : "تعذّر تعديل الكاتيجوري.");
+      setEditSaving(false);
     }
   }
 
@@ -173,26 +216,37 @@ export default function CategoriesPage() {
                           {cat.isActive ? "فعّالة" : "معطّلة"}
                         </span>
                       </td>
-                      <td className="py-3 pr-3 text-left">
-                        {cat.isActive ? (
+                      <td className="py-3 pr-3">
+                        <div className="flex items-center justify-end gap-3">
                           <button
                             type="button"
-                            onClick={() => handleDeactivate(cat.id)}
-                            disabled={deactivatingId === cat.id}
-                            className="text-sm font-medium text-red-600 transition hover:text-red-800 disabled:opacity-50"
+                            onClick={() => openEdit(cat)}
+                            className="flex items-center gap-1 text-sm font-medium text-slate-600 transition hover:text-slate-900"
                           >
-                            {deactivatingId === cat.id ? "جارِ التعطيل..." : "تعطيل"}
+                            <Pencil size={14} />
+                            تعديل
                           </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleActivate(cat.id)}
-                            disabled={activatingId === cat.id}
-                            className="text-sm font-medium text-emerald-600 transition hover:text-emerald-800 disabled:opacity-50"
-                          >
-                            {activatingId === cat.id ? "جارِ التفعيل..." : "تفعيل"}
-                          </button>
-                        )}
+
+                          {cat.isActive ? (
+                            <button
+                              type="button"
+                              onClick={() => handleDeactivate(cat.id)}
+                              disabled={deactivatingId === cat.id}
+                              className="text-sm font-medium text-red-600 transition hover:text-red-800 disabled:opacity-50"
+                            >
+                              {deactivatingId === cat.id ? "جارِ التعطيل..." : "تعطيل"}
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleActivate(cat.id)}
+                              disabled={activatingId === cat.id}
+                              className="text-sm font-medium text-emerald-600 transition hover:text-emerald-800 disabled:opacity-50"
+                            >
+                              {activatingId === cat.id ? "جارِ التفعيل..." : "تفعيل"}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -246,6 +300,53 @@ export default function CategoriesPage() {
               className="w-full rounded-xl bg-emerald-600 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-default disabled:opacity-50"
             >
               {saving ? "جارِ الحفظ..." : "إضافة الكاتيجوري"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit category modal */}
+      {editingCategory && (
+        <div
+          className="fixed inset-0 z-20 flex items-center justify-center bg-slate-900/40 px-4"
+          onClick={closeEdit}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-slate-900">تعديل الكاتيجوري</h3>
+              <button
+                type="button"
+                onClick={closeEdit}
+                className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">اسم الكاتيجوري</label>
+              <input
+                autoFocus
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white"
+              />
+            </div>
+
+            {editError && (
+              <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{editError}</p>
+            )}
+
+            <button
+              type="button"
+              disabled={editSaving}
+              onClick={handleUpdate}
+              className="w-full rounded-xl bg-slate-900 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-default disabled:opacity-50"
+            >
+              {editSaving ? "جارِ الحفظ..." : "حفظ التعديل"}
             </button>
           </div>
         </div>

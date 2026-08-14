@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, Loader2, PackagePlus, PlusCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, ListChecks, Loader2, PackagePlus, PlusCircle } from "lucide-react";
 import { getAllCategories, type Category } from "../api/categoryApi";
 import { createProduct, type SellByType } from "../api/productApi";
 import { getCurrentUser } from "../api/authApi";
@@ -141,26 +141,36 @@ export default function AddProductsPage() {
       className="pos-page min-h-screen text-slate-100 font-sans selection:bg-amber-500/30 flex flex-col"
     >
       {/* Header */}
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-black/80 px-8 py-4 backdrop-blur-xl shadow-2xl">
-        <div className="flex items-center gap-4">
-          <Link
-            to={currentUser?.role === "Admin" ? "/dashboard" : "/home"}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-amber-400 hover:text-black hover:border-amber-400 active:scale-95"
-            aria-label="Back"
-          >
-            <ArrowRight size={18} />
-          </Link>
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-amber-400">Inventory management</p>
-            <h1 className="text-xl font-bold tracking-wide text-white">Add new items</h1>
-          </div>
-        </div>
+     <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-black/80 px-8 py-4 backdrop-blur-xl shadow-2xl">
+  <div className="flex items-center gap-4">
+    <Link
+      to={currentUser?.role === "Admin" ? "/dashboard" : "/home"}
+      className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-amber-400 hover:text-black hover:border-amber-400 active:scale-95"
+      aria-label="Back"
+    >
+      <ArrowRight size={18} />
+    </Link>
+    <div>
+      <p className="text-xs font-medium uppercase tracking-wider text-amber-400">Inventory management</p>
+      <h1 className="text-xl font-bold tracking-wide text-white">Add new items</h1>
+    </div>
+  </div>
 
-        <span className="flex items-center gap-2 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-300 shadow-inner">
-          <PackagePlus size={16} className="text-amber-400" />
-          {addedProducts.length} item{addedProducts.length === 1 ? "" : "s"} added this session
-        </span>
-      </header>
+  <div className="flex items-center gap-3">
+    <Link
+      to="/products"
+      className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white active:scale-95"
+    >
+      <ListChecks size={16} />
+      View all items
+    </Link>
+
+    <span className="flex items-center gap-2 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-300 shadow-inner">
+      <PackagePlus size={16} className="text-amber-400" />
+      {addedProducts.length} item{addedProducts.length === 1 ? "" : "s"} added this session
+    </span>
+  </div>
+</header>
 
       {/* Main Content Grid */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-6 flex flex-col">

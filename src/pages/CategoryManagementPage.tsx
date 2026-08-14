@@ -3,7 +3,7 @@ import {
   useState,
   type FormEvent,
 } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   CheckCircle2,
@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import {
+  activateCategory,
   createCategory,
   deactivateCategory,
   getAllCategories,
@@ -26,6 +27,7 @@ import { ApiError } from "../api/httpClient";
 
 export default function CategoryManagementPage() {
   const currentUser = getCurrentUser();
+  const navigate = useNavigate();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,6 +146,25 @@ export default function CategoryManagementPage() {
         err instanceof ApiError
           ? err.message
           : "Unable to disable the category."
+      );
+    }
+  }
+
+  async function handleActivate(category: Category) {
+    setError("");
+    setSuccess("");
+
+    try {
+      await activateCategory(category.id, currentUser?.id ?? null);
+
+      setSuccess("Category enabled successfully.");
+      setLoading(true);
+      await loadCategories();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Unable to enable the category."
       );
     }
   }
@@ -317,12 +338,20 @@ export default function CategoryManagementPage() {
                       </div>
 
                       <div>
-                        <p className="text-lg font-bold text-white">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate(
+                              `/products?categoryId=${category.id}&categoryName=${encodeURIComponent(category.name)}`
+                            )
+                          }
+                          className="text-lg font-bold text-white transition hover:text-amber-400 hover:underline cursor-pointer"
+                        >
                           {category.name}
-                        </p>
+                        </button>
 
                         <span
-                          className={`inline-block text-xs font-bold ${
+                          className={`block text-xs font-bold ${
                             category.isActive
                               ? "text-emerald-400"
                               : "text-red-400"
@@ -344,14 +373,21 @@ export default function CategoryManagementPage() {
                         <Edit3 size={18} />
                       </button>
 
-                      {category.isActive && (
+                      {category.isActive ? (
                         <button
                           type="button"
-                          onClick={() =>
-                            void handleDeactivate(category)
-                          }
+                          onClick={() => void handleDeactivate(category)}
                           className="rounded-xl border border-white/20 bg-white/10 p-2.5 text-red-400 transition hover:bg-red-600 hover:text-white cursor-pointer"
                           aria-label="Disable"
+                        >
+                          <Power size={18} />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => void handleActivate(category)}
+                          className="rounded-xl border border-white/20 bg-white/10 p-2.5 text-emerald-400 transition hover:bg-emerald-600 hover:text-white cursor-pointer"
+                          aria-label="Enable"
                         >
                           <Power size={18} />
                         </button>

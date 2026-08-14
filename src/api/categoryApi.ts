@@ -28,7 +28,7 @@ export async function updateCategory(
   data: UpdateCategoryRequest,
   updatedByUserId: number | null
 ): Promise<void> {
-  return httpClient.patch<void>(`/categories/${id}`, { id, ...data, updatedByUserId });
+  return httpClient.put<void>(`/categories/${id}`, { id, ...data, updatedByUserId });
 }
 
 export async function deactivateCategory(id: number, updatedByUserId: number | null): Promise<void> {

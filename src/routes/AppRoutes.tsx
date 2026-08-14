@@ -5,6 +5,7 @@ import Unauthorized from "../pages/Unauthorized";
 import AdminDashboard from "../pages/AdminDashboard";
 import StaffHome from "../pages/Staffhome";
 import AddProductsPage from "../pages/AddProductsPage";
+import ProductsListPage from "../pages/ProductsListPage";
 import StockManagementPage from "../pages/StockManagementPage";
 import { CashierCartPage } from "../features/cashier/CashierCartPage";
 import { ExchangeScreen } from "../features/exchange/ExchangeScreen";
@@ -17,6 +18,8 @@ import { ReturnScreen } from "../features/returns/ReturnScreen";
 import ProductManagementPage from "../pages/ProductManagementPage";
 import UserManagementPage from "../pages/UserManagementPage";
 import ShiftManagementPage from "../pages/ShiftManagementPage";
+import CategoriesPage from "../pages/CategoriesPage";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -115,6 +118,14 @@ const router = createBrowserRouter([
     path: "/products",
     element: (
       <PermissionRoute permission="manage_products">
+        <ProductsListPage />
+      </PermissionRoute>
+    ),
+  },
+  {
+    path: "/products/add",
+    element: (
+      <PermissionRoute permission="manage_products">
         <AddProductsPage />
       </PermissionRoute>
     ),
@@ -156,6 +167,14 @@ const router = createBrowserRouter([
     element: (
       <PermissionRoute permission="view_reports">
         <ComingSoon title="Reports" />
+      </PermissionRoute>
+    ),
+  },
+  {
+    path: "/categories",
+    element: (
+      <PermissionRoute permission="manage_products">
+        <CategoriesPage />
       </PermissionRoute>
     ),
   },

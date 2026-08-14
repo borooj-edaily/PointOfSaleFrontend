@@ -26,6 +26,7 @@ function mapProduct(dto: ProductDto): Product {
     pricePerPackage: dto.pricePerPackage,
     piecesPerPackage: dto.piecesPerPackage,
     stockInPieces: dto.stockInPieces,
+    isActive: dto.isActive,
   };
 }
 
@@ -113,4 +114,23 @@ export function getLowStockProducts(
   });
 
   return httpClient.get<ProductDto[]>(`/products/low-stock?${query.toString()}`);
+}
+export function deactivateProduct(id: number, updatedByUserId: number | null): Promise<void> {
+  return httpClient.patch<void>(`/products/${id}/deactivate`, { id, updatedByUserId });
+}
+
+export function activateProduct(id: number, updatedByUserId: number | null): Promise<void> {
+  return httpClient.patch<void>(`/products/${id}/activate`, { id, updatedByUserId });
+}
+
+// Mirrors Pos.Api/Features/Products/LowStock/LowStockDto.cs
+export interface LowStockDto {
+  id: number;
+  name: string;
+  categoryName: string;
+  stockInPieces: number;
+}
+
+export function getLowStockProducts(threshold = 10): Promise<LowStockDto[]> {
+  return httpClient.get<LowStockDto[]>(`/products/low-stock?threshold=${threshold}`);
 }

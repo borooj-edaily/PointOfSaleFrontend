@@ -248,55 +248,55 @@ export default function StockManagementPage() {
       />
 
       <div className="relative flex min-h-screen flex-col w-full" style={{ zIndex: 10 }}>
-        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-black/70 px-8 py-5 backdrop-blur-xl shadow-2xl">
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-black/70 px-10 py-6 backdrop-blur-xl shadow-2xl">
           <div className="flex items-center gap-4">
             <Link
               to={currentUser?.role === "Admin" ? "/dashboard" : "/home"}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-amber-400 hover:text-black hover:border-amber-400 active:scale-95"
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-amber-400 hover:text-black hover:border-amber-400 active:scale-95"
               aria-label="Back"
             >
-              <ArrowRight size={18} />
+              <ArrowRight size={20} />
             </Link>
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-amber-400">Inventory management</p>
-              <h1 className="text-xl font-bold tracking-wide text-white">Adjust stock balance</h1>
+              <h1 className="text-2xl font-bold tracking-wide text-white mt-0.5">Adjust stock balance</h1>
             </div>
           </div>
 
-          <span className="flex items-center gap-2 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-300 shadow-inner">
-            <Boxes size={16} className="text-amber-400" />
+          <span className="flex items-center gap-2 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-5 py-2.5 text-sm font-semibold text-amber-300 shadow-inner">
+            <Boxes size={18} className="text-amber-400" />
             {currentUser?.fullName ?? "User"}
           </span>
         </header>
 
-        <main className="flex-1 w-full max-w-4xl mx-auto px-6 py-10 space-y-8">
-          <section className="relative z-30 rounded-3xl border border-white/10 bg-black/60 p-8 backdrop-blur-2xl shadow-2xl space-y-6">
-            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-              <span className="h-3 w-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400" />
-              <h2 className="text-lg font-bold text-white">Select product</h2>
+        <main className="flex-1 w-full max-w-[1400px] mx-auto px-10 py-12 space-y-10">
+          <section className="relative z-30 rounded-3xl border border-white/10 bg-black/60 p-10 backdrop-blur-2xl shadow-2xl space-y-8">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-5">
+              <span className="h-3.5 w-3.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400" />
+              <h2 className="text-xl font-bold text-white">Select product</h2>
             </div>
 
             <div ref={searchBoxRef} className="relative z-50">
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 transition focus-within:border-amber-400 focus-within:bg-white/10 focus-within:ring-2 focus-within:ring-amber-400/20">
-                <Search size={20} className="shrink-0 text-amber-400" />
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-4 transition focus-within:border-amber-400 focus-within:bg-white/10 focus-within:ring-2 focus-within:ring-amber-400/20">
+                <Search size={22} className="shrink-0 text-amber-400" />
                 <input
                   value={search}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onFocus={() => setShowResults(true)}
                   placeholder="Search by product name to preview stock..."
-                  className="w-full bg-transparent text-sm text-white placeholder-slate-400 outline-none"
+                  className="w-full bg-transparent text-base text-white placeholder-slate-400 outline-none"
                 />
-                {searching && <Loader2 size={18} className="animate-spin text-amber-400" />}
+                {searching && <Loader2 size={20} className="animate-spin text-amber-400" />}
               </div>
 
               {showResults && results.length > 0 && (
-                <ul className="absolute right-0 left-0 top-full mt-2 z-50 max-h-60 overflow-y-auto rounded-2xl border border-amber-400/30 bg-slate-900/95 p-2 backdrop-blur-2xl shadow-2xl ring-1 ring-black/50">
+                <ul className="absolute right-0 left-0 top-full mt-2 z-50 max-h-72 overflow-y-auto rounded-2xl border border-amber-400/30 bg-slate-900/95 p-2 backdrop-blur-2xl shadow-2xl ring-1 ring-black/50">
                   {results.map((p: any) => (
                     <li key={p.id}>
                       <button
                         type="button"
                         onClick={() => handleSelectProduct(p)}
-                        className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-right text-sm text-slate-200 transition hover:bg-amber-400/20 hover:text-amber-300"
+                        className="flex w-full items-center justify-between rounded-xl px-5 py-3.5 text-right text-sm text-slate-200 transition hover:bg-amber-400/20 hover:text-amber-300"
                       >
                         <span className="font-medium">{p.name}</span>
                         <span className="font-mono text-xs rounded-lg border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-amber-300">
@@ -310,21 +310,21 @@ export default function StockManagementPage() {
             </div>
 
             {selected && (
-              <div className="flex flex-wrap items-center justify-between gap-6 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-6 backdrop-blur-lg">
+              <div className="flex flex-wrap items-center justify-between gap-6 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-7 backdrop-blur-lg">
                 <div>
-                  <p className="text-xl font-bold text-white">{selected.name}</p>
+                  <p className="text-2xl font-bold text-white">{selected.name}</p>
                   {hasPackageOption && (
-                    <p className="mt-1 text-xs text-amber-400/80">
+                    <p className="mt-1.5 text-sm text-amber-400/80">
                       {selected.piecesPerPackage} pieces / package
                     </p>
                   )}
                 </div>
 
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-8">
                   <div className="text-left">
-                    <p className="text-xs text-slate-400">Current balance</p>
-                    <p className="font-mono text-3xl font-extrabold text-amber-400 mt-1">
-                      {stockLoading ? <Loader2 size={24} className="animate-spin text-amber-400" /> : `${displayStock} pieces`}
+                    <p className="text-sm text-slate-400">Current balance</p>
+                    <p className="font-mono text-4xl font-extrabold text-amber-400 mt-1">
+                      {stockLoading ? <Loader2 size={26} className="animate-spin text-amber-400" /> : `${displayStock} pieces`}
                     </p>
                   </div>
 
@@ -332,17 +332,17 @@ export default function StockManagementPage() {
                     <button
                       type="button"
                       onClick={() => openModal("restock")}
-                      className="flex items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 text-sm font-bold text-black transition hover:bg-amber-300 active:scale-95 shadow-lg shadow-amber-400/10"
+                      className="flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 text-sm font-bold text-black transition hover:bg-amber-300 active:scale-95 shadow-lg shadow-amber-400/10"
                     >
-                      <PlusCircle size={18} />
+                      <PlusCircle size={20} />
                       Add
                     </button>
                     <button
                       type="button"
                       onClick={() => openModal("deduct")}
-                      className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-5 py-3 text-sm font-bold text-rose-400 transition hover:bg-rose-500/20 active:scale-95"
+                      className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-6 py-3.5 text-sm font-bold text-rose-400 transition hover:bg-rose-500/20 active:scale-95"
                     >
-                      <MinusCircle size={18} />
+                      <MinusCircle size={20} />
                       Deduct
                     </button>
                   </div>
@@ -351,26 +351,26 @@ export default function StockManagementPage() {
             )}
           </section>
 
-          <section className="relative z-10 rounded-3xl border border-white/10 bg-black/60 p-8 backdrop-blur-2xl shadow-2xl space-y-6">
-            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-              <History size={22} className="text-amber-400" />
-              <h2 className="text-lg font-bold text-white">Movement history</h2>
+          <section className="relative z-10 rounded-3xl border border-white/10 bg-black/60 p-10 backdrop-blur-2xl shadow-2xl space-y-8">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-5">
+              <History size={24} className="text-amber-400" />
+              <h2 className="text-xl font-bold text-white">Movement history</h2>
             </div>
 
             {!selected ? (
-              <div className="py-12 text-center text-sm text-slate-400">
+              <div className="py-16 text-center text-sm text-slate-400">
                 Please select a product from the search field above to display its detailed movement history.
               </div>
             ) : historyLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 size={28} className="animate-spin text-amber-400" />
+              <div className="flex items-center justify-center py-16">
+                <Loader2 size={30} className="animate-spin text-amber-400" />
               </div>
             ) : historyError ? (
-              <p className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+              <p className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-3.5 text-sm text-rose-400">
                 {historyError}
               </p>
             ) : history.length === 0 ? (
-              <div className="py-12 text-center text-sm text-slate-400">
+              <div className="py-16 text-center text-sm text-slate-400">
                 No inventory movements have been recorded for this product yet.
               </div>
             ) : (

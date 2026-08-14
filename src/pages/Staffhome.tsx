@@ -117,13 +117,14 @@ export default function StaffHome() {
                 <Link
                   key={card.to}
                   to={card.to}
-                  className={`group relative overflow-hidden rounded-3xl border p-8 transition-all duration-300 active:scale-[0.98] flex flex-col justify-center ${
+                  dir="ltr"
+                  className={`group relative overflow-hidden rounded-3xl border p-10 transition-all duration-300 active:scale-[0.98] flex flex-col justify-start ${
                     isCashier
                       ? "border-amber-500/40 bg-black/80 hover:border-amber-400 shadow-xl shadow-amber-500/5"
                       : "border-slate-800/80 bg-black/80 hover:border-amber-500/30 hover:bg-black/90"
                   } backdrop-blur-2xl`}
                 >
-                  <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-500/5 blur-3xl transition-all group-hover:bg-amber-500/15" />
+                  <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-500/5 blur-3xl transition-all group-hover:bg-amber-500/15" />
 
                   <div className="relative z-10 flex items-start gap-5">
                     <div
@@ -136,9 +137,9 @@ export default function StaffHome() {
                       <Icon size={32} />
                     </div>
 
-                    <div className="flex-1 space-y-2">
+                    <div className="flex-1 space-y-2 text-left">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-extrabold text-white group-hover:text-amber-300 transition-colors">
+                        <h3 className="text-lg font-extrabold text-white group-hover:text-amber-300 transition-colors text-left">
                           {card.label}
                         </h3>
                         {isCashier && (
@@ -147,7 +148,7 @@ export default function StaffHome() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs font-medium leading-relaxed text-slate-400 group-hover:text-slate-300">
+                      <p className="text-xs font-medium leading-relaxed text-slate-400 group-hover:text-slate-300 text-left">
                         {card.description}
                       </p>
                     </div>

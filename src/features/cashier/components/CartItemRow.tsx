@@ -21,21 +21,21 @@ function unitPrice(line: CartLine): number {
 }
 
 function unitLabel(line: CartLine): string {
-  return line.unitSold === "package" ? "عبوة" : "قطعة";
+  return line.unitSold === "package" ? "Pack" : "Piece";
 }
 
 export function CartItemRow({ line, onQuantityChange, onRemove }: Props) {
   const lineTotal = unitPrice(line) * line.quantity;
 
   return (
-    <li className="px-4 py-3">
+    <li className="px-3.5 py-2.5 transition hover:bg-slate-900/60">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium leading-tight text-slate-800">{line.product.name}</p>
+        <p className="text-xs font-semibold leading-tight text-slate-100 line-clamp-1">{line.product.name}</p>
         <button
           type="button"
           onClick={() => onRemove(line.product.id)}
-          className="shrink-0 text-slate-300 transition hover:text-red-500"
-          aria-label="حذف الصنف"
+          className="shrink-0 text-slate-500 transition hover:text-red-400"
+          aria-label="Remove item"
         >
           <X size={14} />
         </button>
@@ -47,26 +47,26 @@ export function CartItemRow({ line, onQuantityChange, onRemove }: Props) {
             type="button"
             onClick={() => onQuantityChange(line.product.id, line.quantity - 1)}
             disabled={line.quantity <= 1}
-            className="flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 text-slate-500 transition hover:bg-slate-50 disabled:opacity-30"
-            aria-label="إنقاص الكمية"
+            className="flex h-5 w-5 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 transition hover:border-amber-400/40 hover:text-white disabled:opacity-30"
+            aria-label="Decrease quantity"
           >
-            <Minus size={12} />
+            <Minus size={10} />
           </button>
-          <span className="w-6 text-center font-mono text-xs font-semibold text-slate-700">
+          <span className="w-4 text-center font-mono text-xs font-bold text-white">
             {line.quantity}
           </span>
           <button
             type="button"
             onClick={() => onQuantityChange(line.product.id, line.quantity + 1)}
-            className="flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 text-slate-500 transition hover:bg-slate-50"
-            aria-label="زيادة الكمية"
+            className="flex h-5 w-5 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 transition hover:border-amber-400/40 hover:text-white"
+            aria-label="Increase quantity"
           >
-            <Plus size={12} />
+            <Plus size={10} />
           </button>
-          <span className="mr-1 text-[11px] text-slate-400">{unitLabel(line)}</span>
+          <span className="mr-1 text-[10px] text-slate-400 font-medium">{unitLabel(line)}</span>
         </div>
 
-        <span className="font-mono text-sm text-slate-600">{lineTotal.toFixed(2)}</span>
+        <span className="font-mono text-xs font-extrabold text-amber-400">{lineTotal.toFixed(2)}</span>
       </div>
     </li>
   );

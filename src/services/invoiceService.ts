@@ -5,15 +5,31 @@ import type {
   FinalizeInvoiceRequest,
   FinalizeInvoiceResponse,
   GetInvoiceByNumberResponse,
+  ReturnInvoiceItemRequest,
+  ReturnInvoiceItemResponse,
 } from "../types/invoice";
 
 export const invoiceService = {
   finalize: (payload: FinalizeInvoiceRequest) =>
-    httpClient.post<FinalizeInvoiceResponse>("/invoices/finalize", payload),
+    httpClient.post<FinalizeInvoiceResponse>(
+      "/invoices/finalize",
+      payload
+    ),
 
   getByNumber: (invoiceNumber: number) =>
-    httpClient.get<GetInvoiceByNumberResponse>(`/invoices/${invoiceNumber}`),
+    httpClient.get<GetInvoiceByNumberResponse>(
+      `/invoices/${invoiceNumber}`
+    ),
 
   exchange: (payload: ExchangeInvoiceItemRequest) =>
-    httpClient.post<ExchangeInvoiceItemResponse>("/invoices/exchange", payload),
+    httpClient.post<ExchangeInvoiceItemResponse>(
+      "/invoices/exchange",
+      payload
+    ),
+
+  returnItem: (payload: ReturnInvoiceItemRequest) =>
+    httpClient.post<ReturnInvoiceItemResponse>(
+      "/invoices/returns",
+      payload
+    ),
 };

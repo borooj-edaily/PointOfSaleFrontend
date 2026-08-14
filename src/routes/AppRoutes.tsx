@@ -5,12 +5,18 @@ import Unauthorized from "../pages/Unauthorized";
 import AdminDashboard from "../pages/AdminDashboard";
 import StaffHome from "../pages/Staffhome";
 import AddProductsPage from "../pages/AddProductsPage";
+import ProductManagementPage from "../pages/ProductManagementPage";
 import StockManagementPage from "../pages/StockManagementPage";
 import { CashierCartPage } from "../features/cashier/CashierCartPage";
 import { ExchangeScreen } from "../features/exchange/ExchangeScreen";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PermissionRoute } from "./PermissionRoute";
 import { RoleRoute } from "./Roleroute";
+import AuditLogsPage from "../pages/AuditLogsPage";
+import CategoryManagementPage from "../pages/CategoryManagementPage";
+import { ReturnScreen } from "../features/returns/ReturnScreen";
+import UserManagementPage from "../pages/UserManagementPage";
+import ShiftManagementPage from "../pages/ShiftManagementPage";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +39,44 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+
+
+
+
+
+
+
+
+
+{
+  path: "/returns",
+  element: (
+    <ProtectedRoute>
+      <ReturnScreen />
+    </ProtectedRoute>
+  ),
+},
+
+
+{
+  path: "/categories",
+  element: (
+    <PermissionRoute permission="manage_products">
+      <CategoryManagementPage />
+    </PermissionRoute>
+  ),
+},
+
+
+
+
+
+
+
+
+
+
+
   {
     path: "/exchange",
     element: (
@@ -49,6 +93,17 @@ const router = createBrowserRouter([
       </RoleRoute>
     ),
   },
+
+{
+  path: "/audit-logs",
+  element: (
+    <RoleRoute role="Admin">
+      <AuditLogsPage />
+    </RoleRoute>
+  ),
+},
+
+
   {
     path: "/home",
     element: (
@@ -61,8 +116,32 @@ const router = createBrowserRouter([
     path: "/products",
     element: (
       <PermissionRoute permission="manage_products">
+        <ProductManagementPage />
+      </PermissionRoute>
+    ),
+  },
+  {
+    path: "/products/add",
+    element: (
+      <PermissionRoute permission="manage_products">
         <AddProductsPage />
       </PermissionRoute>
+    ),
+  },
+  {
+    path: "/users",
+    element: (
+      <RoleRoute role="Admin">
+        <UserManagementPage />
+      </RoleRoute>
+    ),
+  },
+  {
+    path: "/shifts",
+    element: (
+      <ProtectedRoute>
+        <ShiftManagementPage />
+      </ProtectedRoute>
     ),
   },
   {

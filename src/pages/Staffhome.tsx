@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Boxes, Clock3, PackagePlus, ShoppingCart, LogOut, User, Store, Tag } from "lucide-react";
 import { getCurrentUser, logout } from "../api/authApi";
 import { LowStockWidget } from "../features/products/LowStockWidget";
+import { ThemeToggle } from "../components/ThemeToggle";
 
 interface ActionCard {
   to: string;
@@ -68,6 +69,8 @@ export default function StaffHome() {
         </div>
 
         <div className="flex items-center gap-5">
+          <ThemeToggle />
+
           <div className="flex items-center gap-2.5 rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-2 backdrop-blur-md">
             <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300">
               <User size={15} />

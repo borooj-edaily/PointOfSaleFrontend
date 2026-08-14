@@ -24,6 +24,7 @@ import {
 } from "../api/categoryApi";
 import { getCurrentUser } from "../api/authApi";
 import { ApiError } from "../api/httpClient";
+import { ThemeToggle } from "../components/ThemeToggle";
 
 export default function CategoryManagementPage() {
   const currentUser = getCurrentUser();
@@ -207,12 +208,16 @@ export default function CategoryManagementPage() {
             </div>
           </div>
 
-          <div 
-            className="flex items-center rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-400 font-black"
-            style={{ padding: "14px 24px", gap: "10px", fontSize: "1.1rem" }}
-          >
-            <Tags size={22} />
-            <span>{categories.length} categories</span>
+          <div className="flex items-center" style={{ gap: "16px" }}>
+            <ThemeToggle />
+
+            <div 
+              className="flex items-center rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-400 font-black"
+              style={{ padding: "14px 24px", gap: "10px", fontSize: "1.1rem" }}
+            >
+              <Tags size={22} />
+              <span>{categories.length} categories</span>
+            </div>
           </div>
         </header>
 

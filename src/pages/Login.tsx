@@ -61,10 +61,10 @@ export default function Login() {
         backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?q=80&w=1920&auto=format&fit=crop')`,
       }}
     >
-      {/* Container الرئيسي بالمنتصف */}
+      {/* Main centered container */}
       <div className="relative w-full max-w-xl" style={{ marginTop: "30px", marginBottom: "30px" }}>
 
-        {/* الأيقونات الصفراء العلوية مع تباعد صريح */}
+        {/* Yellow top icons with clear spacing */}
         <div className="absolute -top-7 right-8 z-20 flex" style={{ gap: "12px" }}>
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-400 text-slate-950 shadow-2xl border-2 border-amber-300">
             <ShoppingCart size={26} className="stroke-[2.5]" />
@@ -77,7 +77,7 @@ export default function Login() {
           </div>
         </div>
 
-        {/* الكارت الشفاف مع محاذاة عمودية لتوزيع العناصر بالتساوي داخل المربع الاسود */}
+        {/* Transparent card with vertical alignment for evenly distributing elements inside the black box */}
         <div 
           className="relative rounded-3xl border border-white/15 bg-black/85 shadow-2xl backdrop-blur-2xl flex flex-col justify-between"
           style={{
@@ -86,7 +86,7 @@ export default function Login() {
             boxSizing: "border-box"
           }}
         >
-          {/* 1. قسم العناوين */}
+          {/* 1. Header section */}
           <div className="text-left" style={{ marginBottom: "30px" }}>
             <span className="text-sm font-black tracking-widest text-amber-400 uppercase block" style={{ marginBottom: "8px" }}>
               AL-ISRAA Supermarket
@@ -96,10 +96,10 @@ export default function Login() {
             </h1>
           </div>
 
-          {/* 2. قسم الإدخال */}
+          {/* 2. Input section */}
           <form onSubmit={handleLogin} className="flex-1 flex flex-col justify-center">
             
-            {/* حقل Username مع مسافة إجبارية بالأسفل */}
+            {/* Username field with mandatory spacing below */}
             <div 
               className="flex w-full items-center overflow-hidden rounded-2xl bg-white shadow-xl"
               style={{ height: "64px", marginBottom: "28px" }}
@@ -117,7 +117,7 @@ export default function Login() {
               />
             </div>
 
-            {/* حقل Password مع مسافة إجبارية بالأسفل */}
+            {/* Password field with mandatory spacing below */}
             <div 
               className="flex w-full items-center overflow-hidden rounded-2xl bg-white shadow-xl"
               style={{ height: "64px", marginBottom: "28px" }}
@@ -144,7 +144,7 @@ export default function Login() {
               </button>
             </div>
 
-            {/* رسالة الخطأ */}
+            {/* Error message */}
             {error && (
               <div 
                 className="rounded-2xl bg-red-500/20 p-4 text-center text-base font-bold text-red-200 border border-red-500/40"
@@ -154,7 +154,7 @@ export default function Login() {
               </div>
             )}
 
-            {/* 3. قسم الزر السفلي */}
+            {/* 3. Footer button section */}
             <div className="flex justify-end" style={{ marginTop: "12px" }}>
               <button
                 type="submit"

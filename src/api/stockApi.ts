@@ -12,11 +12,11 @@ export const StockMovementType = {
 export type StockMovementType = (typeof StockMovementType)[keyof typeof StockMovementType];
 
 export const STOCK_MOVEMENT_LABELS: Record<StockMovementType, string> = {
-  [StockMovementType.Restock]: "استلام بضاعة",
-  [StockMovementType.Sale]: "بيع",
-  [StockMovementType.Return]: "مردود",
-  [StockMovementType.ManualDeduction]: "خصم يدوي",
-  [StockMovementType.ManualAddition]: "إضافة يدوية",
+  [StockMovementType.Restock]: "Stock Restock",
+  [StockMovementType.Sale]: "Sale",
+  [StockMovementType.Return]: "Return",
+  [StockMovementType.ManualDeduction]: "Manual Deduction",
+  [StockMovementType.ManualAddition]: "Manual Addition",
 };
 
 // Mirrors Pos.Api/Features/StockMovements/CurrentStock/CurrentStockDto.cs

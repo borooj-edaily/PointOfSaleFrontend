@@ -32,7 +32,7 @@ export default function AdminDashboard() {
         setError(
           err instanceof Error
             ? err.message
-            : "فشل تحميل الإحصائيات"
+            : "Failed to load statistics"
         )
       );
   }, []);
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
               </span>
 
               <h1 className="text-3xl font-black tracking-tight text-white">
-                لوحة تحكم الأدمن
+                Admin dashboard
               </h1>
             </div>
           </div>
@@ -90,21 +90,21 @@ export default function AdminDashboard() {
               }}
             >
               <PlusCircle size={20} className="stroke-[2.5]" />
-              <span>إضافة أصناف</span>
+              <span>Add items</span>
             </Link>
-<Link
-  to="/categories"
-  className="flex items-center rounded-2xl bg-white/10 border border-white/20 font-bold text-white shadow-lg transition-all hover:bg-white/20 active:scale-95"
-  style={{
-    padding: "12px 20px",
-    gap: "8px",
-    fontSize: "1rem",
-    textDecoration: "none",
-  }}
->
-  <FileSpreadsheet size={20} className="stroke-[2.5]" />
-  <span>إدارة الكاتيجوريز</span>
-</Link>
+            <Link
+              to="/categories"
+              className="flex items-center rounded-2xl bg-white/10 border border-white/20 font-bold text-white shadow-lg transition-all hover:bg-white/20 active:scale-95"
+              style={{
+                padding: "12px 20px",
+                gap: "8px",
+                fontSize: "1rem",
+                textDecoration: "none",
+              }}
+            >
+              <FileSpreadsheet size={20} className="stroke-[2.5]" />
+              <span>Categories</span>
+            </Link>
             {user?.permissions.includes("manage_inventory") && (
               <Link
                 to="/stock"
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
                 }}
               >
                 <Boxes size={20} />
-                <span>تعديل رصيد المخزون</span>
+                <span>Inventory balance</span>
               </Link>
             )}
 
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
               }}
             >
               <ClipboardList size={20} />
-              <span>سجل العمليات</span>
+              <span>Activity log</span>
             </Link>
 
             <Link
@@ -141,7 +141,7 @@ export default function AdminDashboard() {
               style={{ padding: "12px 20px", gap: "8px", fontSize: "1rem", textDecoration: "none" }}
             >
               <Boxes size={20} />
-              <span>إدارة المنتجات</span>
+              <span>Products</span>
             </Link>
 
             <Link
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
               style={{ padding: "12px 20px", gap: "8px", fontSize: "1rem", textDecoration: "none" }}
             >
               <Users size={20} />
-              <span>المستخدمون</span>
+              <span>Users</span>
             </Link>
 
             <Link
@@ -159,7 +159,7 @@ export default function AdminDashboard() {
               style={{ padding: "12px 20px", gap: "8px", fontSize: "1rem", textDecoration: "none" }}
             >
               <Clock3 size={20} />
-              <span>الدوام</span>
+              <span>Shifts</span>
             </Link>
 
             {user && (
@@ -185,7 +185,7 @@ export default function AdminDashboard() {
               }}
             >
               <LogOut size={20} />
-              <span>تسجيل خروج</span>
+              <span>Log out</span>
             </button>
           </div>
         </div>
@@ -205,25 +205,25 @@ export default function AdminDashboard() {
             style={{ gap: "24px" }}
           >
             <StatCard
-              label="مبيعات اليوم"
-              value={`${stats.todaySalesTotal.toFixed(2)} شيكل`}
+              label="Today's sales"
+              value={`${stats.todaySalesTotal.toFixed(2)} JOD`}
               icon={<DollarSign size={28} className="stroke-[2.5]" />}
             />
 
             <StatCard
-              label="عدد فواتير اليوم"
+              label="Today's invoices"
               value={stats.todayInvoicesCount}
               icon={<Receipt size={28} className="stroke-[2.5]" />}
             />
 
             <StatCard
-              label="مبيعات الشهر"
-              value={`${stats.monthSalesTotal.toFixed(2)} شيكل`}
+              label="Monthly sales"
+              value={`${stats.monthSalesTotal.toFixed(2)} JOD`}
               icon={<TrendingUp size={28} className="stroke-[2.5]" />}
             />
 
             <StatCard
-              label="إجمالي الفواتير"
+              label="Total invoices"
               value={stats.totalInvoicesCount}
               icon={<FileSpreadsheet size={28} className="stroke-[2.5]" />}
             />

@@ -38,7 +38,7 @@ function toIso(value: string): string | undefined {
 }
 
 function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("ar-PS", {
+  return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
@@ -48,8 +48,7 @@ export default function AuditLogsPage() {
   const user = getCurrentUser();
 
   const [filters, setFilters] = useState<Filters>(emptyFilters);
-  const [appliedFilters, setAppliedFilters] =
-    useState<Filters>(emptyFilters);
+  const [appliedFilters, setAppliedFilters] = useState<Filters>(emptyFilters);
   const [page, setPage] = useState(1);
   const [result, setResult] = useState<AuditLogsResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,9 +65,7 @@ export default function AuditLogsPage() {
         const data = await getAuditLogs({
           from: toIso(appliedFilters.from),
           to: toIso(appliedFilters.to),
-          userId: appliedFilters.userId
-            ? Number(appliedFilters.userId)
-            : undefined,
+          userId: appliedFilters.userId ? Number(appliedFilters.userId) : undefined,
           action: appliedFilters.action.trim() || undefined,
           entity: appliedFilters.entity.trim() || undefined,
           page,
@@ -80,11 +77,7 @@ export default function AuditLogsPage() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "فشل تحميل سجل العمليات."
-          );
+          setError(err instanceof Error ? err.message : "Failed to load operation log.");
         }
       } finally {
         if (!cancelled) {
@@ -100,11 +93,7 @@ export default function AuditLogsPage() {
     };
   }, [appliedFilters, page]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil((result?.totalCount ?? 0) / PAGE_SIZE)
-  );
-
+  const totalPages = Math.max(1, Math.ceil((result?.totalCount ?? 0) / PAGE_SIZE));
   const items: AuditLog[] = result?.items ?? [];
 
   function applyFilters(event: React.FormEvent<HTMLFormElement>) {
@@ -139,9 +128,7 @@ export default function AuditLogsPage() {
               <p className="mb-1 text-xs font-black uppercase tracking-widest text-amber-400">
                 AL-ISRAA Supermarket
               </p>
-              <h1 className="text-3xl font-black tracking-tight text-white">
-                سجل العمليات
-              </h1>
+              <h1 className="text-3xl font-black tracking-tight text-white">Operations log</h1>
             </div>
           </div>
 
@@ -158,7 +145,7 @@ export default function AuditLogsPage() {
               className="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 font-bold text-white transition hover:bg-white/20"
             >
               <ArrowRight size={19} />
-              لوحة التحكم
+              Dashboard
             </Link>
 
             <button
@@ -167,33 +154,26 @@ export default function AuditLogsPage() {
               className="flex cursor-pointer items-center gap-2 rounded-2xl border border-red-500/30 bg-red-600/80 px-4 py-3 font-bold text-white transition hover:bg-red-600"
             >
               <LogOut size={19} />
-              تسجيل خروج
+              Log out
             </button>
           </div>
         </header>
 
         <section className="rounded-3xl border border-white/15 bg-black/80 p-5 shadow-2xl backdrop-blur-2xl sm:p-7">
-          <form
-            onSubmit={applyFilters}
-            className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5"
-          >
+          <form onSubmit={applyFilters} className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             <input
               type="datetime-local"
               value={filters.from}
-              onChange={(e) =>
-                setFilters({ ...filters, from: e.target.value })
-              }
-              aria-label="من تاريخ"
+              onChange={(e) => setFilters({ ...filters, from: e.target.value })}
+              aria-label="From date"
               className="rounded-xl border border-white/15 bg-white/10 px-3 py-3 text-sm text-white outline-none focus:border-amber-400"
             />
 
             <input
               type="datetime-local"
               value={filters.to}
-              onChange={(e) =>
-                setFilters({ ...filters, to: e.target.value })
-              }
-              aria-label="إلى تاريخ"
+              onChange={(e) => setFilters({ ...filters, to: e.target.value })}
+              aria-label="To date"
               className="rounded-xl border border-white/15 bg-white/10 px-3 py-3 text-sm text-white outline-none focus:border-amber-400"
             />
 
@@ -201,28 +181,22 @@ export default function AuditLogsPage() {
               type="number"
               min="1"
               value={filters.userId}
-              onChange={(e) =>
-                setFilters({ ...filters, userId: e.target.value })
-              }
-              placeholder="رقم المستخدم"
+              onChange={(e) => setFilters({ ...filters, userId: e.target.value })}
+              placeholder="User ID"
               className="rounded-xl border border-white/15 bg-white/10 px-3 py-3 text-sm text-white placeholder:text-slate-400 outline-none focus:border-amber-400"
             />
 
             <input
               value={filters.action}
-              onChange={(e) =>
-                setFilters({ ...filters, action: e.target.value })
-              }
-              placeholder="العملية"
+              onChange={(e) => setFilters({ ...filters, action: e.target.value })}
+              placeholder="Action"
               className="rounded-xl border border-white/15 bg-white/10 px-3 py-3 text-sm text-white placeholder:text-slate-400 outline-none focus:border-amber-400"
             />
 
             <input
               value={filters.entity}
-              onChange={(e) =>
-                setFilters({ ...filters, entity: e.target.value })
-              }
-              placeholder="الكيان"
+              onChange={(e) => setFilters({ ...filters, entity: e.target.value })}
+              placeholder="Entity"
               className="rounded-xl border border-white/15 bg-white/10 px-3 py-3 text-sm text-white placeholder:text-slate-400 outline-none focus:border-amber-400"
             />
 
@@ -232,7 +206,7 @@ export default function AuditLogsPage() {
                 className="flex items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-amber-300"
               >
                 <Search size={17} />
-                بحث
+                Search
               </button>
 
               <button
@@ -241,7 +215,7 @@ export default function AuditLogsPage() {
                 className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/20"
               >
                 <Filter size={17} />
-                مسح الفلاتر
+                Clear filters
               </button>
             </div>
           </form>
@@ -254,54 +228,42 @@ export default function AuditLogsPage() {
 
           <div className="mb-4 flex items-center justify-between gap-3 text-sm text-slate-300">
             <p>
-              إجمالي السجلات:{" "}
-              <span className="font-black text-amber-400">
-                {result?.totalCount ?? 0}
-              </span>
+              Total records: <span className="font-black text-amber-400">{result?.totalCount ?? 0}</span>
             </p>
 
-            {loading && <p>جارٍ التحميل...</p>}
+            {loading && <p>Loading...</p>}
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-white/10">
             <table className="w-full min-w-[900px] text-right text-sm">
               <thead className="bg-white/10 text-amber-400">
                 <tr>
-                  <th className="px-4 py-4">التاريخ</th>
-                  <th className="px-4 py-4">المستخدم</th>
-                  <th className="px-4 py-4">العملية</th>
-                  <th className="px-4 py-4">الكيان</th>
-                  <th className="px-4 py-4">المعرف</th>
-                  <th className="px-4 py-4">التفاصيل</th>
+                  <th className="px-4 py-4">Date</th>
+                  <th className="px-4 py-4">User</th>
+                  <th className="px-4 py-4">Action</th>
+                  <th className="px-4 py-4">Entity</th>
+                  <th className="px-4 py-4">ID</th>
+                  <th className="px-4 py-4">Details</th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-white/10 text-slate-200">
                 {!loading && items.length === 0 && (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-10 text-center text-slate-400"
-                    >
-                      لا توجد عمليات مطابقة للفلاتر المحددة.
+                    <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
+                      No operations match the selected filters.
                     </td>
                   </tr>
                 )}
 
                 {items.map((log) => (
                   <tr key={log.id} className="transition hover:bg-white/5">
-                    <td className="whitespace-nowrap px-4 py-4">
-                      {formatDate(log.createdAt)}
-                    </td>
-                    <td className="px-4 py-4">
-                      {log.userFullName ?? `مستخدم #${log.userId}`}
-                    </td>
+                    <td className="whitespace-nowrap px-4 py-4">{formatDate(log.createdAt)}</td>
+                    <td className="px-4 py-4">{log.userFullName ?? `User #${log.userId}`}</td>
                     <td className="px-4 py-4">{log.action ?? "—"}</td>
                     <td className="px-4 py-4">{log.entity ?? "—"}</td>
                     <td className="px-4 py-4">{log.entityId ?? "—"}</td>
-                    <td className="max-w-sm px-4 py-4 text-slate-400">
-                      {log.details ?? "—"}
-                    </td>
+                    <td className="max-w-sm px-4 py-4 text-slate-400">{log.details ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -315,12 +277,10 @@ export default function AuditLogsPage() {
               onClick={() => setPage((current) => current - 1)}
               className="rounded-xl border border-white/20 bg-white/10 px-4 py-2 font-bold text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              السابق
+              Previous
             </button>
 
-            <span className="font-bold text-slate-300">
-              صفحة {page} من {totalPages}
-            </span>
+            <span className="font-bold text-slate-300">Page {page} of {totalPages}</span>
 
             <button
               type="button"
@@ -328,7 +288,7 @@ export default function AuditLogsPage() {
               onClick={() => setPage((current) => current + 1)}
               className="rounded-xl border border-white/20 bg-white/10 px-4 py-2 font-bold text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              التالي
+              Next
             </button>
           </div>
         </section>

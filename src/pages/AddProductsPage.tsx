@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, PackagePlus } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, PackagePlus, PlusCircle } from "lucide-react";
 import { getAllCategories, type Category } from "../api/categoryApi";
 import { createProduct, type SellByType } from "../api/productApi";
 import { getCurrentUser } from "../api/authApi";
@@ -69,15 +69,15 @@ export default function AddProductsPage() {
   }
 
   function validate(): string | null {
-    if (!form.name.trim()) return "اسم الصنف مطلوب.";
-    if (!form.categoryId) return "لازم تختار كاتيجوري.";
+    if (!form.name.trim()) return "Product name is required.";
+    if (!form.categoryId) return "Please choose a category.";
 
     if ((form.sellBy === "piece" || form.sellBy === "both") && !form.pricePerPiece) {
-      return "سعر الحبة مطلوب عند البيع بالحبة.";
+      return "Piece price is required when selling by piece.";
     }
     if (form.sellBy === "package" || form.sellBy === "both") {
-      if (!form.pricePerPackage) return "سعر الباكيج مطلوب عند البيع بالباكيج.";
-      if (!form.piecesPerPackage) return "عدد الحبات بالباكيج مطلوب عند البيع بالباكيج.";
+      if (!form.pricePerPackage) return "Package price is required when selling by package.";
+      if (!form.piecesPerPackage) return "Number of pieces per package is required when selling by package.";
     }
     return null;
   }
@@ -123,12 +123,10 @@ export default function AddProductsPage() {
         ...prev,
       ]);
 
-      // Reset the form for the next product, but keep the same category
-      // selected since products are usually added in batches per category.
       setForm((prev) => ({ ...emptyForm, categoryId: prev.categoryId }));
       nameInputRef.current?.focus();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "حصل خطأ غير متوقع.");
+      setError(err instanceof ApiError ? err.message : "An unexpected error occurred.");
     } finally {
       setSubmitting(false);
     }
@@ -138,191 +136,253 @@ export default function AddProductsPage() {
   const showPackageFields = form.sellBy === "package" || form.sellBy === "both";
 
   return (
-    <div dir="rtl" className="pos-page">
-      <header className="flex items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
-        <div className="flex items-center gap-3">
+    <div
+      dir="rtl"
+      className="pos-page min-h-screen text-slate-100 font-sans selection:bg-amber-500/30 flex flex-col"
+    >
+      {/* Header */}
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-black/80 px-8 py-4 backdrop-blur-xl shadow-2xl">
+        <div className="flex items-center gap-4">
           <Link
             to={currentUser?.role === "Admin" ? "/dashboard" : "/home"}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/10"
-            aria-label="رجوع"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-amber-400 hover:text-black hover:border-amber-400 active:scale-95"
+            aria-label="Back"
           >
-            <ArrowRight size={16} />
+            <ArrowRight size={18} />
           </Link>
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">إدارة المخزون</p>
-            <h1 className="text-lg font-semibold">إضافة أصناف جديدة</h1>
+            <p className="text-xs font-medium uppercase tracking-wider text-amber-400">Inventory management</p>
+            <h1 className="text-xl font-bold tracking-wide text-white">Add new items</h1>
           </div>
         </div>
-        <span className="flex items-center gap-1 rounded-full bg-slate-700/60 px-3 py-1 text-xs font-medium text-slate-200">
-          <PackagePlus size={14} />
-          {addedProducts.length} صنف مُضاف بهذه الجلسة
+
+        <span className="flex items-center gap-2 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-300 shadow-inner">
+          <PackagePlus size={16} className="text-amber-400" />
+          {addedProducts.length} item{addedProducts.length === 1 ? "" : "s"} added this session
         </span>
       </header>
 
-      <div className="mx-auto grid max-w-5xl gap-6 px-6 py-8 lg:grid-cols-[1fr_1fr]">
-        {/* Quick add form */}
-        <section className="h-fit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-5 text-base font-semibold text-slate-900">بيانات الصنف</h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">اسم الصنف</label>
-              <input
-                ref={nameInputRef}
-                autoFocus
-                value={form.name}
-                onChange={(e) => updateField("name", e.target.value)}
-                placeholder="مثال: شيبس ليز كبير"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">الكاتيجوري</label>
-              {categoriesStatus === "error" ? (
-                <p className="text-sm text-red-500">تعذّر تحميل الكاتيجوريز.</p>
-              ) : (
-                <select
-                  value={form.categoryId}
-                  onChange={(e) => updateField("categoryId", e.target.value)}
-                  disabled={categoriesStatus === "loading"}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white"
-                >
-                  {categoriesStatus === "loading" && <option>جارٍ التحميل...</option>}
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">طريقة البيع</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(
-                  [
-                    { value: "piece", label: "بالحبة" },
-                    { value: "package", label: "بالباكيج" },
-                    { value: "both", label: "الاثنين" },
-                  ] as const
-                ).map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => updateField("sellBy", opt.value)}
-                    className={`rounded-xl border py-2.5 text-sm font-medium transition ${
-                      form.sellBy === opt.value
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                        : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+      {/* Main Content Grid */}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-6 flex flex-col">
+        <div className="grid gap-8 lg:grid-cols-2 items-stretch flex-1">
+          
+          {/* Form Section */}
+          <section className="flex flex-col justify-between rounded-3xl border border-white/10 bg-black/80 p-8 backdrop-blur-2xl shadow-2xl h-full">
+            <div className="flex flex-col h-full justify-between">
+              
+              {/* Header Title */}
+              <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+                <span className="h-3 w-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400" />
+                <h2 className="text-lg font-bold text-white">Item details</h2>
               </div>
-            </div>
 
-            {showPiecePrice && (
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">سعر الحبة (د.أ)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={form.pricePerPiece}
-                  onChange={(e) => updateField("pricePerPiece", e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white"
-                />
-              </div>
-            )}
-
-            {showPackageFields && (
-              <div className="grid grid-cols-2 gap-3">
+              {/* Form Element Spanning Height */}
+              <form id="add-product-form" onSubmit={handleSubmit} className="flex-1 flex flex-col justify-between py-4 space-y-4">
+                {/* Product Name */}
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">سعر الباكيج (د.أ)</label>
+                  <label className="mb-2 block text-xs font-semibold text-slate-300">Item name</label>
                   <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={form.pricePerPackage}
-                    onChange={(e) => updateField("pricePerPackage", e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white"
+                    ref={nameInputRef}
+                    autoFocus
+                    value={form.name}
+                    onChange={(e) => updateField("name", e.target.value)}
+                    placeholder="Example: Large Lay's chips"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-amber-400 focus:bg-white/10 focus:ring-2 focus:ring-amber-400/20"
                   />
                 </div>
+
+                {/* Category Selection */}
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">عدد الحبات بالباكيج</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={form.piecesPerPackage}
-                    onChange={(e) => updateField("piecesPerPackage", e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white"
-                  />
+                  <label className="mb-2 block text-xs font-semibold text-slate-300">Category</label>
+                  {categoriesStatus === "error" ? (
+                    <p className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-400">
+                      Unable to load categories.
+                    </p>
+                  ) : (
+                    <select
+                      value={form.categoryId}
+                      onChange={(e) => updateField("categoryId", e.target.value)}
+                      disabled={categoriesStatus === "loading"}
+                      className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                    >
+                      {categoriesStatus === "loading" && <option className="bg-slate-900">Loading...</option>}
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id} className="bg-slate-900 text-white">
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
-              </div>
-            )}
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">المخزون الابتدائي (بالحبة)</label>
-              <input
-                type="number"
-                min="0"
-                value={form.stockInPieces}
-                onChange={(e) => updateField("stockInPieces", e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white"
-              />
-            </div>
+                {/* Sell By Toggle Options */}
+                <div>
+                  <label className="mb-2 block text-xs font-semibold text-slate-300">Selling method</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {(
+                      [
+                        { value: "piece", label: "Per piece" },
+                        { value: "package", label: "Per package" },
+                        { value: "both", label: "Both" },
+                      ] as const
+                    ).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => updateField("sellBy", opt.value)}
+                        className={`rounded-2xl border py-2.5 text-xs font-bold transition active:scale-95 ${
+                          form.sellBy === opt.value
+                            ? "border-amber-400 bg-amber-400/10 text-amber-300 shadow-sm"
+                            : "border-white/10 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
-            )}
+                {/* Price Per Piece Field */}
+                {showPiecePrice && (
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold text-slate-300">Piece price (JOD)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.pricePerPiece}
+                      onChange={(e) => updateField("pricePerPiece", e.target.value)}
+                      placeholder="0.00"
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-amber-400 focus:bg-white/10 focus:ring-2 focus:ring-amber-400/20"
+                    />
+                  </div>
+                )}
 
-            <button
-              type="submit"
-              disabled={submitting || categoriesStatus !== "idle"}
-              className="w-full rounded-xl bg-emerald-600 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-default disabled:opacity-50"
-            >
-              {submitting ? "جارٍ الحفظ..." : "حفظ وإضافة صنف تاني"}
-            </button>
-          </form>
-        </section>
-
-        {/* Session log of what's been added so far */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-5 text-base font-semibold text-slate-900">أضيف بهذه الجلسة</h2>
-
-          {addedProducts.length === 0 ? (
-            <p className="text-sm text-slate-400">لسا ما ضفت أي صنف. أول صنف تحفظه بيظهر هون.</p>
-          ) : (
-            <ul className="space-y-2.5">
-              {addedProducts.map((p) => (
-                <li
-                  key={p.id}
-                  className="flex items-start justify-between gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3"
-                >
-                  <div className="flex items-start gap-2.5">
-                    <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" />
+                {/* Package Price and Pieces Count */}
+                {showPackageFields && (
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm font-medium text-slate-900">{p.name}</p>
-                      <p className="text-xs text-slate-500">{p.categoryName}</p>
+                      <label className="mb-2 block text-xs font-semibold text-slate-300">Package price (JOD)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={form.pricePerPackage}
+                        onChange={(e) => updateField("pricePerPackage", e.target.value)}
+                        placeholder="0.00"
+                        className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-amber-400 focus:bg-white/10 focus:ring-2 focus:ring-amber-400/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-xs font-semibold text-slate-300">Pieces / package</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={form.piecesPerPackage}
+                        onChange={(e) => updateField("piecesPerPackage", e.target.value)}
+                        placeholder="Number of pieces"
+                        className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-amber-400 focus:bg-white/10 focus:ring-2 focus:ring-amber-400/20"
+                      />
                     </div>
                   </div>
-                  <div className="whitespace-nowrap text-left font-mono text-xs text-slate-500">
-                    {(p.sellBy === "piece" || p.sellBy === "both") && p.pricePerPiece && (
-                      <p>{Number(p.pricePerPiece).toFixed(2)} د.أ / حبة</p>
-                    )}
-                    {(p.sellBy === "package" || p.sellBy === "both") && p.pricePerPackage && (
-                      <p>{Number(p.pricePerPackage).toFixed(2)} د.أ / باكيج</p>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </div>
+                )}
+
+                {/* Initial Stock */}
+                <div>
+                  <label className="mb-2 block text-xs font-semibold text-slate-300">Initial stock (pieces)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.stockInPieces}
+                    onChange={(e) => updateField("stockInPieces", e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-amber-400 focus:bg-white/10 focus:ring-2 focus:ring-amber-400/20"
+                  />
+                </div>
+
+                {/* Error Banner */}
+                {error && (
+                  <p className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs font-medium text-rose-400">
+                    {error}
+                  </p>
+                )}
+              </form>
+
+              {/* Submit Button Section */}
+              <div className="pt-2">
+                <button
+                  form="add-product-form"
+                  type="submit"
+                  disabled={submitting || categoriesStatus !== "idle"}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-amber-400 py-3.5 text-sm font-bold text-black transition hover:bg-amber-300 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg shadow-amber-400/10"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle size={18} />
+                      Save and add another item
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </div>
+          </section>
+
+          {/* Added Log Section */}
+          <section className="flex flex-col rounded-3xl border border-white/10 bg-black/80 p-8 backdrop-blur-2xl shadow-2xl h-full">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4 mb-6">
+              <CheckCircle2 size={22} className="text-amber-400" />
+              <h2 className="text-lg font-bold text-white">Added this session</h2>
+            </div>
+
+            {addedProducts.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center text-sm text-slate-400">
+                No items added yet. Your first saved item will appear here.
+              </div>
+            ) : (
+              <ul className="space-y-3 flex-1 overflow-y-auto pr-1 max-h-[calc(100vh-250px)]">
+                {addedProducts.map((p) => (
+                  <li
+                    key={p.id}
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4 backdrop-blur-md transition hover:bg-amber-400/10"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <CheckCircle2 size={18} />
+                      </span>
+                      <div>
+                        <p className="text-sm font-bold text-white">{p.name}</p>
+                        <p className="text-xs text-amber-400/80">{p.categoryName}</p>
+                      </div>
+                    </div>
+
+                    <div className="whitespace-nowrap text-left font-mono text-xs">
+                      {(p.sellBy === "piece" || p.sellBy === "both") && p.pricePerPiece && (
+                        <p className="font-semibold text-amber-300">
+                          {Number(p.pricePerPiece).toFixed(2)} JOD <span className="text-slate-400 font-sans">/ piece</span>
+                        </p>
+                      )}
+                      {(p.sellBy === "package" || p.sellBy === "both") && p.pricePerPackage && (
+                        <p className="font-semibold text-amber-300">
+                          {Number(p.pricePerPackage).toFixed(2)} JOD <span className="text-slate-400 font-sans">/ package</span>
+                        </p>
+                      )}
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        Stock: {p.stockInPieces} pieces
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+        </div>
+      </main>
     </div>
   );
 }

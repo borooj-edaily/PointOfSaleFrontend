@@ -16,8 +16,7 @@ export function ReturnScreen() {
   const currentUser = getCurrentUser();
 
   const [invoiceNumberText, setInvoiceNumberText] = useState("");
-  const [invoice, setInvoice] =
-    useState<GetInvoiceByNumberResponse | null>(null);
+  const [invoice, setInvoice] = useState<GetInvoiceByNumberResponse | null>(null);
 
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState("1");
@@ -28,9 +27,7 @@ export function ReturnScreen() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const selectedItem = invoice?.items.find(
-    (item) => item.invoiceItemId === selectedItemId
-  );
+  const selectedItem = invoice?.items.find((item) => item.invoiceItemId === selectedItemId);
 
   async function loadInvoice(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,7 +35,7 @@ export function ReturnScreen() {
     const invoiceNumber = Number(invoiceNumberText);
 
     if (!invoiceNumber || invoiceNumber < 1) {
-      setError("أدخل رقم فاتورة صحيح.");
+      setError("Please enter a valid invoice number.");
       return;
     }
 
@@ -52,11 +49,7 @@ export function ReturnScreen() {
       const data = await invoiceService.getByNumber(invoiceNumber);
       setInvoice(data);
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "تعذر العثور على الفاتورة."
-      );
+      setError(err instanceof ApiError ? err.message : "Unable to find the invoice.");
     } finally {
       setLoadingInvoice(false);
     }
@@ -66,20 +59,14 @@ export function ReturnScreen() {
     event.preventDefault();
 
     if (!selectedItem) {
-      setError("اختر الصنف الذي تريد إرجاعه.");
+      setError("Select the item you want to return.");
       return;
     }
 
     const returnedQuantity = Number(quantity);
 
-    if (
-      !returnedQuantity ||
-      returnedQuantity < 1 ||
-      returnedQuantity > selectedItem.returnableQuantity
-    ) {
-      setError(
-        `الكمية يجب أن تكون بين 1 و ${selectedItem.returnableQuantity}.`
-      );
+    if (!returnedQuantity || returnedQuantity < 1 || returnedQuantity > selectedItem.returnableQuantity) {
+      setError(`Quantity must be between 1 and ${selectedItem.returnableQuantity}.`);
       return;
     }
 
@@ -95,123 +82,110 @@ export function ReturnScreen() {
         reason: reason.trim() || null,
       });
 
-      setSuccess(
-        `تم الإرجاع بنجاح. قيمة المبلغ المسترد: ${response.refundAmount.toFixed(2)} شيكل`
-      );
+      setSuccess(`Return completed successfully. Refund amount: ${response.refundAmount.toFixed(2)} JOD`);
 
-      const updatedInvoice = await invoiceService.getByNumber(
-        invoice!.invoiceNumber
-      );
+      const updatedInvoice = await invoiceService.getByNumber(invoice!.invoiceNumber);
 
       setInvoice(updatedInvoice);
       setSelectedItemId(null);
       setQuantity("1");
       setReason("");
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "حدث خطأ أثناء تنفيذ الإرجاع."
-      );
+      setError(err instanceof ApiError ? err.message : "An error occurred while processing the return.");
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div dir="rtl" className="pos-page">
-      <header className="flex items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
-        <div className="flex items-center gap-3">
+    <div dir="rtl" className="flex min-h-screen flex-col bg-slate-950 text-slate-100">
+      <header className="flex shrink-0 items-center justify-between border-b border-amber-500/20 bg-black/80 px-8 py-4 backdrop-blur-2xl shadow-xl">
+        <div className="flex items-center gap-4">
           <Link
             to="/cashier"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/10"
-            aria-label="رجوع للكاشير"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900/60 text-slate-300 transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-400"
+            aria-label="Back to cashier"
           >
-            <ArrowRight size={16} />
+            <ArrowRight size={18} />
           </Link>
 
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">
-              نقطة البيع
-            </p>
-            <h1 className="text-lg font-semibold">إرجاع فاتورة</h1>
+            <p className="text-xs uppercase tracking-widest text-amber-400 font-medium">Point of sale</p>
+            <h1 className="text-xl font-extrabold tracking-wide text-white">Invoice return</h1>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => void logout()}
-          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
-        >
-          <LogOut size={16} />
-          تسجيل خروج
-        </button>
+        <div className="flex items-center gap-4 text-sm">
+          {currentUser && (
+            <span className="font-semibold text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-2xl">
+              {currentUser.fullName}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => void logout()}
+            className="flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2 font-medium text-red-400 transition hover:bg-red-500/20 hover:border-red-500/50"
+          >
+            <LogOut size={16} />
+            Log out
+          </button>
+        </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-base font-semibold text-slate-900">
-            البحث عن فاتورة
-          </h2>
+      <main className="mx-auto w-full max-w-5xl flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+        <section className="rounded-3xl border border-amber-500/20 bg-black/80 p-6 md:p-8 backdrop-blur-2xl shadow-2xl">
+          <h2 className="mb-5 text-base font-bold text-amber-400">Search invoice</h2>
 
-          <form
-            onSubmit={loadInvoice}
-            className="flex flex-col gap-3 sm:flex-row"
-          >
+          <form onSubmit={loadInvoice} className="flex flex-col gap-3 sm:flex-row">
             <input
               type="number"
               min="1"
               value={invoiceNumberText}
-              onChange={(event) =>
-                setInvoiceNumberText(event.target.value)
-              }
-              placeholder="رقم الفاتورة"
-              className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white"
+              onChange={(event) => setInvoiceNumberText(event.target.value)}
+              placeholder="Enter invoice number..."
+              className="flex-1 rounded-2xl border border-slate-700 bg-slate-900/80 px-5 py-3 font-mono text-base text-white placeholder-slate-500 outline-none transition focus:border-amber-400 focus:ring-1 focus:ring-amber-400 shadow-inner"
             />
 
             <button
               type="submit"
               disabled={loadingInvoice}
-              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-amber-400 px-7 py-3 text-base font-bold text-black transition hover:bg-amber-300 active:scale-95 disabled:opacity-50 shadow-lg shadow-amber-400/10"
             >
-              <Search size={17} />
-              {loadingInvoice ? "جارٍ البحث..." : "بحث"}
+              <Search size={18} />
+              {loadingInvoice ? "Searching..." : "Search"}
             </button>
           </form>
         </section>
 
         {error && (
-          <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+          <p className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm font-medium text-red-400">
             {error}
           </p>
         )}
 
         {success && (
-          <p className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-            <CheckCircle2 size={18} />
+          <p className="flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm font-semibold text-emerald-400">
+            <CheckCircle2 size={18} className="shrink-0" />
             {success}
           </p>
         )}
 
         {invoice && (
-          <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-5 flex items-center justify-between">
-                <div>
-                  <h2 className="font-semibold text-slate-900">
-                    فاتورة رقم #{invoice.invoiceNumber}
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    الإجمالي الحالي: {invoice.total.toFixed(2)} شيكل
-                  </p>
-                </div>
+          <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+            <section className="rounded-3xl border border-amber-500/20 bg-black/80 p-6 backdrop-blur-2xl shadow-2xl">
+              <div className="mb-5 border-b border-slate-800 pb-4">
+                <h2 className="text-lg font-bold text-white">
+                  Invoice <span className="font-mono text-amber-400">#{invoice.invoiceNumber}</span>
+                </h2>
+                <p className="mt-1 text-sm text-slate-400">
+                  Current total: <span className="font-mono font-bold text-amber-400">{invoice.total.toFixed(2)} JOD</span>
+                </p>
               </div>
 
               <div className="space-y-3">
                 {invoice.items.map((item) => {
                   const canReturn = item.returnableQuantity > 0;
-                  const selected =
-                    item.invoiceItemId === selectedItemId;
+                  const selected = item.invoiceItemId === selectedItemId;
 
                   return (
                     <button
@@ -222,34 +196,24 @@ export function ReturnScreen() {
                         setSelectedItemId(item.invoiceItemId);
                         setQuantity("1");
                       }}
-                      className={`w-full rounded-xl border p-4 text-right transition ${
+                      className={`w-full rounded-2xl border p-4 text-right transition ${
                         selected
-                          ? "border-emerald-500 bg-emerald-50"
-                          : "border-slate-200 bg-white hover:border-emerald-300"
-                      } ${
-                        !canReturn
-                          ? "cursor-not-allowed opacity-50"
-                          : ""
-                      }`}
+                          ? "border-amber-400 bg-amber-400/10 shadow-lg shadow-amber-400/5"
+                          : "border-slate-800 bg-slate-900/60 hover:border-amber-400/40 hover:bg-slate-900"
+                      } ${!canReturn ? "cursor-not-allowed opacity-40 hover:border-slate-800 hover:bg-slate-900/60" : ""}`}
                     >
                       <div className="flex justify-between gap-4">
                         <div>
-                          <p className="font-medium text-slate-900">
-                            صنف رقم #{item.productId}
-                          </p>
-                          <p className="mt-1 text-xs text-slate-500">
-                            الكمية بالفاتورة: {item.quantity} · تم إرجاع:{" "}
-                            {item.alreadyReturnedQuantity}
+                          <p className="font-bold text-slate-100">Item #{item.productId}</p>
+                          <p className="mt-1 text-xs text-slate-400">
+                            Quantity in invoice: <span className="font-mono text-slate-300">{item.quantity}</span> · Returned: {" "}
+                            <span className="font-mono text-slate-300">{item.alreadyReturnedQuantity}</span>
                           </p>
                         </div>
 
                         <div className="text-left">
-                          <p className="font-mono text-sm text-slate-700">
-                            {item.lineTotal.toFixed(2)} شيكل
-                          </p>
-                          <p className="mt-1 text-xs text-emerald-600">
-                            المتاح للإرجاع: {item.returnableQuantity}
-                          </p>
+                          <p className="font-mono text-sm font-bold text-white">{item.lineTotal.toFixed(2)} JOD</p>
+                          <p className="mt-1 text-xs font-semibold text-amber-400">Available to return: {item.returnableQuantity}</p>
                         </div>
                       </div>
                     </button>
@@ -258,39 +222,29 @@ export function ReturnScreen() {
               </div>
             </section>
 
-            <section className="h-fit rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-5 flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
+            <section className="h-fit rounded-3xl border border-amber-500/20 bg-black/80 p-6 backdrop-blur-2xl shadow-2xl">
+              <div className="mb-5 flex items-center gap-3 border-b border-slate-800 pb-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400">
                   <RotateCcw size={20} />
                 </div>
 
                 <div>
-                  <h2 className="font-semibold text-slate-900">
-                    تنفيذ الإرجاع
-                  </h2>
-                  <p className="text-xs text-slate-500">
-                    اختر صنفاً من القائمة أولاً.
-                  </p>
+                  <h2 className="font-bold text-white">Process return</h2>
+                  <p className="text-xs text-slate-400">Select an item from the list first.</p>
                 </div>
               </div>
 
               <form onSubmit={submitReturn} className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                    الصنف المختار
-                  </label>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-400">Selected item</label>
 
-                  <div className="rounded-xl bg-slate-50 px-3.5 py-3 text-sm text-slate-600">
-                    {selectedItem
-                      ? `صنف رقم #${selectedItem.productId}`
-                      : "لم يتم اختيار صنف"}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-amber-300">
+                    {selectedItem ? `Item #${selectedItem.productId}` : "No item selected"}
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                    الكمية
-                  </label>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-400">Quantity</label>
 
                   <input
                     type="number"
@@ -299,32 +253,30 @@ export function ReturnScreen() {
                     value={quantity}
                     onChange={(event) => setQuantity(event.target.value)}
                     disabled={!selectedItem}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white disabled:opacity-50"
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 font-mono text-sm text-white outline-none transition focus:border-amber-400 disabled:opacity-40"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                    سبب الإرجاع (اختياري)
-                  </label>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-400">Return reason (optional)</label>
 
                   <textarea
                     rows={3}
                     maxLength={250}
                     value={reason}
                     onChange={(event) => setReason(event.target.value)}
-                    placeholder="مثال: منتج تالف أو تم إدخال المنتج بالخطأ"
+                    placeholder="Example: damaged item or item entered incorrectly"
                     disabled={!selectedItem}
-                    className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-900 outline-none focus:border-emerald-400 focus:bg-white disabled:opacity-50"
+                    className="w-full resize-none rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm text-white outline-none transition focus:border-amber-400 disabled:opacity-40"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={!selectedItem || submitting}
-                  className="w-full rounded-xl bg-orange-600 py-3 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-2xl bg-amber-400 py-3.5 text-sm font-bold text-black transition hover:bg-amber-300 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 shadow-lg shadow-amber-400/10"
                 >
-                  {submitting ? "جارٍ تنفيذ الإرجاع..." : "تأكيد الإرجاع"}
+                  {submitting ? "Processing return..." : "Confirm return"}
                 </button>
               </form>
             </section>

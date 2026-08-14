@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import {
   ArrowRight,
   Banknote,
@@ -27,7 +27,7 @@ function unitPrice(line: CartLine): number {
 }
 
 function unitLabel(line: CartLine): string {
-  return line.unitSold === "package" ? "عبوة" : "قطعة";
+  return line.unitSold === "package" ? "Package" : "Piece";
 }
 
 const QUICK_AMOUNTS = [20, 50, 100];
@@ -38,9 +38,9 @@ const NUMPAD_ROWS = [
 ];
 
 const DISABLED_NUMPAD_ACTIONS: { label: string; icon: typeof Split }[] = [
-  { label: "تقسيم بالتساوي", icon: Split },
-  { label: "المكافآت", icon: Percent },
-  { label: "رسوم خدمة", icon: Receipt },
+  { label: "Split evenly", icon: Split },
+  { label: "Rewards", icon: Percent },
+  { label: "Service fee", icon: Receipt },
 ];
 
 export function CheckoutScreen({
@@ -56,13 +56,24 @@ export function CheckoutScreen({
 }: CheckoutScreenProps) {
   const [tendered, setTendered] = useState<string>("");
 
-  const tenderedValue = tendered === "" ? 0 : Number(tendered);
-  const change = tenderedValue - total;
-  const canConfirm = tenderedValue >= total;
+  const roundedTotal = Math.round((total || 0) * 100) / 100;
+  const tenderedValue = tendered === "" ? 0 : parseFloat(tendered) || 0;
+  const roundedTendered = Math.round(tenderedValue * 100) / 100;
+
+  const change = Math.max(0, Math.round((roundedTendered - roundedTotal) * 100) / 100);
+  const canConfirm = roundedTendered >= roundedTotal;
   const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
 
   function pressDigit(digit: string) {
-    setTendered((prev) => (prev.length >= 9 ? prev : prev + digit));
+    setTendered((prev) => {
+      if (prev.length >= 9) return prev;
+      if (digit === ".") {
+        if (prev.includes(".")) return prev;
+        if (prev === "") return "0.";
+      }
+      if (prev === "0" && digit !== ".") return digit;
+      return prev + digit;
+    });
   }
 
   function clear() {
@@ -73,190 +84,206 @@ export function CheckoutScreen({
     setTendered((prev) => prev.slice(0, -1));
   }
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.key >= "0" && e.key <= "9") || e.key === ".") {
+        pressDigit(e.key);
+      } else if (e.key === "Backspace") {
+        backspace();
+      } else if (e.key === "Escape") {
+        onCancel();
+      } else if (e.key === "Enter" && canConfirm && !loading) {
+        e.preventDefault();
+        onConfirm();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [canConfirm, loading, onConfirm, onCancel]);
+
   return (
-    <div className="fixed inset-0 z-50 flex bg-[#F1F2EF]" dir="rtl">
-      {/* Order ticket */}
-      <aside className="flex w-[300px] shrink-0 flex-col border-l border-slate-200 bg-white">
-        <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3.5">
-          <div className="flex items-center gap-2">
+    <div className="fixed inset-0 z-50 flex h-screen w-screen bg-slate-950/90 backdrop-blur-md overflow-hidden text-slate-100 select-none" dir="rtl">
+      <aside className="flex w-[320px] shrink-0 flex-col border-l border-amber-500/20 bg-black/80 backdrop-blur-2xl shadow-2xl">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-800/80 px-4 py-3.5">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={onCancel}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100"
-              aria-label="رجوع للسلة"
+              className="flex h-8 w-8 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-slate-300 transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-400 active:scale-95"
+              aria-label="Back to cart"
             >
               <ArrowRight size={16} />
             </button>
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400">
                 {invoiceLabel}
               </p>
-              <p className="text-sm font-semibold text-slate-900">{cashierName}</p>
+              <p className="text-xs font-bold text-slate-100">{cashierName}</p>
             </div>
           </div>
-          <span className="flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
-            <Users size={12} />
-            {itemCount} صنف
+          <span className="flex items-center gap-1.5 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
+            <Users size={12} className="text-amber-400" />
+            {itemCount} item{itemCount === 1 ? "" : "s"}
           </span>
         </div>
 
-        <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto">
+        <ul className="flex-1 divide-y divide-slate-800/60 overflow-y-auto bg-slate-950/30">
           {lines.map((line) => (
-            <li key={line.product.id} className="flex items-start justify-between gap-2 px-4 py-2.5">
+            <li key={line.product.id} className="flex items-start justify-between gap-2 px-4 py-3 transition hover:bg-slate-900/40">
               <div className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-md bg-slate-100 px-1 font-mono text-xs font-semibold text-slate-500">
+                <span className="mt-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 px-1 font-mono text-xs font-bold text-amber-300">
                   {line.quantity}
                 </span>
                 <div>
-                  <p className="text-sm leading-tight text-slate-800">{line.product.name}</p>
-                  <p className="text-[11px] text-slate-400">{unitLabel(line)}</p>
+                  <p className="text-xs font-bold leading-tight text-slate-200 line-clamp-1">{line.product.name}</p>
+                  <p className="text-[10px] font-medium text-slate-400 mt-0.5">{unitLabel(line)}</p>
                 </div>
               </div>
-              <span className="font-mono text-sm text-slate-600">
+              <span className="font-mono text-xs font-extrabold text-amber-400">
                 {(unitPrice(line) * line.quantity).toFixed(2)}
               </span>
             </li>
           ))}
         </ul>
 
-        <div className="space-y-1.5 border-t border-slate-100 bg-slate-50 p-4 text-sm">
-          <div className="flex justify-between text-slate-500">
-            <span>المجموع الفرعي</span>
-            <span className="font-mono">{subtotal.toFixed(2)}</span>
+        <div className="space-y-1.5 border-t border-slate-800/80 bg-slate-950/90 p-4 text-xs">
+          <div className="flex justify-between font-medium text-slate-400">
+            <span>Subtotal</span>
+            <span className="font-mono text-slate-200">{subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-slate-500">
-            <span>الخصم</span>
-            <span className="font-mono">-{discountAmount.toFixed(2)}</span>
+          <div className="flex justify-between font-medium text-slate-400">
+            <span>Discount</span>
+            <span className="font-mono text-red-400">-{discountAmount.toFixed(2)}</span>
           </div>
-          <div className="flex items-baseline justify-between border-t border-dashed border-slate-200 pt-2 text-base font-semibold text-slate-900">
-            <span>المبلغ المستحق</span>
-            <span className="font-mono">{total.toFixed(2)} د.أ</span>
+          <div className="flex items-baseline justify-between border-t border-slate-800/80 pt-2.5 text-sm font-bold text-white">
+            <span>Amount due</span>
+            <span className="font-mono text-lg font-extrabold text-amber-400">{roundedTotal.toFixed(2)} <span className="text-xs font-sans">JOD</span></span>
           </div>
         </div>
       </aside>
 
-      {/* Numpad */}
-      <section className="flex flex-1 flex-col justify-center px-10">
-        <p className="mb-1 text-sm text-slate-400">المبلغ المستحق</p>
-        <p className="mb-8 text-4xl font-bold tracking-tight text-slate-900">
-          {total.toFixed(2)} <span className="text-xl font-semibold text-slate-400">د.أ</span>
-        </p>
+      <section className="flex flex-1 flex-col justify-center px-8 lg:px-12 bg-slate-950/60">
+        <div className="max-w-md mx-auto w-full">
+          <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-400">Amount due</p>
+          <p className="mb-6 text-5xl font-mono font-extrabold tracking-tight text-amber-400 drop-shadow-md">
+            {roundedTotal.toFixed(2)} <span className="text-2xl font-sans font-semibold text-slate-500">JOD</span>
+          </p>
 
-        <div className="mb-6 grid max-w-md grid-cols-2 gap-4">
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-slate-400">المبلغ المستلم</p>
-            <div className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-left font-mono text-xl text-slate-900">
-              {tendered === "" ? "0" : tendered}
+          <div className="mb-6 grid grid-cols-2 gap-4">
+            <div>
+              <p className="mb-1.5 text-xs font-bold text-slate-400">Amount received</p>
+              <div className="rounded-2xl border border-slate-700/80 bg-slate-900/90 px-4 py-3 text-left font-mono text-xl font-bold text-white shadow-inner">
+                {tendered === "" ? "0" : tendered}
+              </div>
             </div>
-          </div>
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-slate-400">الباقي</p>
-            <div
-              className={`rounded-xl border px-4 py-3 text-left font-mono text-xl ${
-                tenderedValue > 0 && change >= 0
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-slate-200 bg-slate-50 text-slate-400"
-              }`}
-            >
-              {tenderedValue > 0 ? Math.max(change, 0).toFixed(2) : "0.00"}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid max-w-md grid-cols-4 gap-3">
-          {NUMPAD_ROWS.map((row, rowIndex) => (
-            <Fragment key={row.join("")}>
-              {row.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => pressDigit(key)}
-                  className="rounded-xl border border-slate-200 bg-white py-4 text-lg font-medium text-slate-800 transition hover:bg-slate-50"
-                >
-                  {key}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setTendered(String(QUICK_AMOUNTS[rowIndex]))}
-                className="rounded-xl border border-slate-200 bg-slate-100 py-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+            <div>
+              <p className="mb-1.5 text-xs font-bold text-slate-400">Change</p>
+              <div
+                className={`rounded-2xl border px-4 py-3 text-left font-mono text-xl font-bold shadow-inner transition-all ${
+                  canConfirm
+                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                    : "border-slate-700/80 bg-slate-900/90 text-slate-500"
+                }`}
               >
-                {QUICK_AMOUNTS[rowIndex]} د.أ
-              </button>
-            </Fragment>
-          ))}
+                {canConfirm ? change.toFixed(2) : "0.00"}
+              </div>
+            </div>
+          </div>
 
-          <button
-            type="button"
-            onClick={clear}
-            className="rounded-xl border border-slate-200 bg-white py-4 text-lg font-medium text-slate-500 transition hover:bg-slate-50"
-          >
-            C
-          </button>
-          <button
-            type="button"
-            onClick={() => pressDigit("0")}
-            className="rounded-xl border border-slate-200 bg-white py-4 text-lg font-medium text-slate-800 transition hover:bg-slate-50"
-          >
-            0
-          </button>
-          <button
-            type="button"
-            onClick={() => pressDigit("00")}
-            className="rounded-xl border border-slate-200 bg-white py-4 text-lg font-medium text-slate-800 transition hover:bg-slate-50"
-          >
-            00
-          </button>
-          <button
-            type="button"
-            onClick={backspace}
-            className="flex items-center justify-center rounded-xl border border-slate-200 bg-white py-4 text-slate-500 transition hover:bg-slate-50"
-            aria-label="حذف"
-          >
-            <Delete size={18} />
-          </button>
-        </div>
+          <div className="grid grid-cols-4 gap-3">
+            {NUMPAD_ROWS.map((row, rowIndex) => (
+              <Fragment key={row.join("")}>
+                {row.map((key) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => pressDigit(key)}
+                    className="rounded-2xl border border-slate-800 bg-slate-900/80 py-3.5 text-xl font-extrabold text-slate-100 shadow-md transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-300 active:scale-95"
+                  >
+                    {key}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setTendered(String(QUICK_AMOUNTS[rowIndex]))}
+                  className="rounded-2xl border border-amber-500/30 bg-amber-500/10 py-3.5 text-xs font-extrabold text-amber-300 shadow-md transition hover:bg-amber-500/20 hover:border-amber-400 active:scale-95"
+                >
+                  {QUICK_AMOUNTS[rowIndex]} JOD
+                </button>
+              </Fragment>
+            ))}
 
-        <div className="mt-4 grid max-w-md grid-cols-3 gap-3">
-          {DISABLED_NUMPAD_ACTIONS.map(({ label, icon: Icon }) => (
             <button
-              key={label}
               type="button"
-              disabled
-              title="قريباً"
-              className="flex cursor-not-allowed flex-col items-center gap-1 rounded-xl border border-dashed border-slate-200 bg-slate-50 py-3 text-[11px] font-medium text-slate-300"
+              onClick={clear}
+              className="rounded-2xl border border-red-500/30 bg-red-500/10 py-3.5 text-xl font-extrabold text-red-400 shadow-md transition hover:bg-red-500/20 hover:border-red-500/50 active:scale-95"
             >
-              <Icon size={16} />
-              {label}
+              C
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={() => pressDigit("0")}
+              className="rounded-2xl border border-slate-800 bg-slate-900/80 py-3.5 text-xl font-extrabold text-slate-100 shadow-md transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-300 active:scale-95"
+            >
+              0
+            </button>
+            <button
+              type="button"
+              onClick={() => pressDigit(".")}
+              className="rounded-2xl border border-slate-800 bg-slate-900/80 py-3.5 text-xl font-extrabold text-amber-400 shadow-md transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-300 active:scale-95"
+            >
+              .
+            </button>
+            <button
+              type="button"
+              onClick={backspace}
+              className="flex items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 py-3.5 text-slate-400 shadow-md transition hover:border-red-500/40 hover:bg-slate-800 hover:text-red-400 active:scale-95"
+              aria-label="Delete"
+            >
+              <Delete size={20} />
+            </button>
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            {DISABLED_NUMPAD_ACTIONS.map(({ label, icon: Icon }) => (
+              <button
+                key={label}
+                type="button"
+                disabled
+                title="Coming soon"
+                className="flex cursor-not-allowed flex-col items-center gap-1 rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 py-2.5 text-[10px] font-bold text-slate-500 opacity-60"
+              >
+                <Icon size={15} className="mb-0.5 text-slate-500" />
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Cash payment summary */}
-      <aside className="flex w-[280px] shrink-0 flex-col gap-4 border-r border-slate-200 bg-white p-5">
-        <div className="flex items-center justify-center gap-2 rounded-xl bg-emerald-50 py-4">
-          <Banknote className="text-emerald-700" size={22} />
-          <span className="text-sm font-semibold text-emerald-700">الدفع نقداً</span>
+      <aside className="flex w-[300px] shrink-0 flex-col gap-4 border-r border-amber-500/20 bg-black/80 backdrop-blur-2xl p-5 shadow-2xl">
+        <div className="flex items-center justify-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 py-3.5 shadow-lg shadow-amber-500/5">
+          <Banknote className="text-amber-400" size={20} />
+          <span className="text-xs font-extrabold text-amber-300">Cash payment</span>
         </div>
 
-        <div className="space-y-2.5 rounded-xl bg-slate-50 p-4 text-sm">
-          <div className="flex justify-between text-slate-500">
-            <span>المبلغ المستحق</span>
-            <span className="font-mono font-semibold text-slate-900">
-              {total.toFixed(2)} د.أ
+        <div className="space-y-3 rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4 text-xs shadow-inner">
+          <div className="flex justify-between font-medium text-slate-400">
+            <span>Amount due</span>
+            <span className="font-mono font-bold text-slate-200">
+              {roundedTotal.toFixed(2)} JOD
             </span>
           </div>
-          <div className="flex justify-between text-slate-500">
-            <span>المبلغ المستلم</span>
-            <span className="font-mono font-semibold text-slate-900">
-              {tendered === "" ? "0.00" : tendered}
+          <div className="flex justify-between font-medium text-slate-400">
+            <span>Amount received</span>
+            <span className="font-mono font-bold text-slate-200">
+              {tendered === "" ? "0.00" : parseFloat(tendered || "0").toFixed(2)}
             </span>
           </div>
-          <div className="flex items-baseline justify-between border-t border-dashed border-slate-200 pt-2.5">
-            <span className="font-semibold text-emerald-700">الباقي</span>
-            <span className="font-mono text-lg font-bold text-emerald-700">
-              {Math.max(change, 0).toFixed(2)} د.أ
+          <div className="flex items-baseline justify-between border-t border-dashed border-slate-800 pt-3 mt-1">
+            <span className="font-bold text-amber-400">Change</span>
+            <span className="font-mono text-xl font-extrabold text-amber-400 drop-shadow">
+              {canConfirm ? change.toFixed(2) : "0.00"} JOD
             </span>
           </div>
         </div>
@@ -264,11 +291,15 @@ export function CheckoutScreen({
         <div className="mt-auto">
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={() => {
+              if (canConfirm && !loading) {
+                onConfirm();
+              }
+            }}
             disabled={!canConfirm || loading}
-            className="w-full rounded-xl bg-emerald-600 py-4 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-default disabled:opacity-40"
+            className="w-full rounded-2xl bg-amber-400 py-3.5 text-xs sm:text-sm font-extrabold text-black shadow-lg shadow-amber-400/10 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-30 disabled:bg-slate-800 disabled:text-slate-500 active:scale-[0.98]"
           >
-            {loading ? "جارٍ الحفظ..." : "تأكيد الدفع وطباعة الفاتورة"}
+            {loading ? "Saving..." : "Confirm payment and print invoice"}
           </button>
         </div>
       </aside>

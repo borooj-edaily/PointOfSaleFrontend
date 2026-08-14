@@ -37,7 +37,7 @@ export default function CategoryManagementPage() {
 
   async function loadCategories() {
     try {
-      const data = await getAllCategories(false);
+      const data = await getAllCategories({ onlyActive: false });
       setCategories(data);
     } catch (err) {
       setError(
@@ -76,18 +76,15 @@ export default function CategoryManagementPage() {
 
     try {
       if (editingCategory) {
-        await updateCategory(editingCategory.id, {
-          id: editingCategory.id,
-          name: trimmedName,
-          updatedByUserId: currentUser?.id ?? null,
-        });
+        await updateCategory(
+          editingCategory.id,
+          { name: trimmedName },
+          currentUser?.id ?? null
+        );
 
         setSuccess("Category updated successfully.");
       } else {
-        await createCategory({
-          name: trimmedName,
-          createdByUserId: currentUser?.id ?? null,
-        });
+        await createCategory({ name: trimmedName });
 
         setSuccess("Category added successfully.");
       }
@@ -137,10 +134,7 @@ export default function CategoryManagementPage() {
     setSuccess("");
 
     try {
-      await deactivateCategory(category.id, {
-        id: category.id,
-        updatedByUserId: currentUser?.id ?? null,
-      });
+      await deactivateCategory(category.id, currentUser?.id ?? null);
 
       setSuccess("Category disabled successfully.");
       setLoading(true);

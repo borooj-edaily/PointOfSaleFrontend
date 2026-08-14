@@ -5,7 +5,7 @@ import Unauthorized from "../pages/Unauthorized";
 import AdminDashboard from "../pages/AdminDashboard";
 import StaffHome from "../pages/Staffhome";
 import AddProductsPage from "../pages/AddProductsPage";
-import ProductsListPage from "../pages/ProductsListPage";
+import ProductManagementPage from "../pages/ProductManagementPage";
 import StockManagementPage from "../pages/StockManagementPage";
 import { CashierCartPage } from "../features/cashier/CashierCartPage";
 import { ExchangeScreen } from "../features/exchange/ExchangeScreen";
@@ -15,10 +15,8 @@ import { RoleRoute } from "./Roleroute";
 import AuditLogsPage from "../pages/AuditLogsPage";
 import CategoryManagementPage from "../pages/CategoryManagementPage";
 import { ReturnScreen } from "../features/returns/ReturnScreen";
-import ProductManagementPage from "../pages/ProductManagementPage";
 import UserManagementPage from "../pages/UserManagementPage";
 import ShiftManagementPage from "../pages/ShiftManagementPage";
-import CategoriesPage from "../pages/CategoriesPage";
 
 const router = createBrowserRouter([
   {
@@ -118,7 +116,7 @@ const router = createBrowserRouter([
     path: "/products",
     element: (
       <PermissionRoute permission="manage_products">
-        <ProductsListPage />
+        <ProductManagementPage />
       </PermissionRoute>
     ),
   },
@@ -127,14 +125,6 @@ const router = createBrowserRouter([
     element: (
       <PermissionRoute permission="manage_products">
         <AddProductsPage />
-      </PermissionRoute>
-    ),
-  },
-  {
-    path: "/product-management",
-    element: (
-      <PermissionRoute permission="manage_products">
-        <ProductManagementPage />
       </PermissionRoute>
     ),
   },
@@ -167,14 +157,6 @@ const router = createBrowserRouter([
     element: (
       <PermissionRoute permission="view_reports">
         <ComingSoon title="Reports" />
-      </PermissionRoute>
-    ),
-  },
-  {
-    path: "/categories",
-    element: (
-      <PermissionRoute permission="manage_products">
-        <CategoriesPage />
       </PermissionRoute>
     ),
   },

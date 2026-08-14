@@ -81,11 +81,6 @@ export interface UpdateProductPayload {
   updatedByUserId: number | null;
 }
 
-export interface DeactivateProductPayload {
-  id: number;
-  updatedByUserId: number | null;
-}
-
 export function getProductById(productId: number): Promise<ProductDto> {
   return httpClient.get<ProductDto>(`/products/${productId}`);
 }
@@ -97,24 +92,6 @@ export function updateProduct(
   return httpClient.put<void>(`/products/${productId}`, payload);
 }
 
-export function deactivateProduct(
-  productId: number,
-  payload: DeactivateProductPayload
-): Promise<void> {
-  return httpClient.patch<void>(`/products/${productId}/deactivate`, payload);
-}
-
-export function getLowStockProducts(
-  threshold = 10,
-  onlyOutOfStock = false
-): Promise<ProductDto[]> {
-  const query = new URLSearchParams({
-    threshold: String(threshold),
-    onlyOutOfStock: String(onlyOutOfStock),
-  });
-
-  return httpClient.get<ProductDto[]>(`/products/low-stock?${query.toString()}`);
-}
 export function deactivateProduct(id: number, updatedByUserId: number | null): Promise<void> {
   return httpClient.patch<void>(`/products/${id}/deactivate`, { id, updatedByUserId });
 }

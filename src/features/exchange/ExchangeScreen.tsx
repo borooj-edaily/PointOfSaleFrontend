@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, ArrowLeft, Search } from "lucide-react";
+import { LogOut, ArrowLeft, Search, CheckCircle2 } from "lucide-react";
 import { getAllProducts } from "../../api/productApi";
 import { invoiceService } from "../../services/invoiceService";
 import { ApiError } from "../../api/httpClient";
@@ -18,7 +18,7 @@ type SubmitStatus = "idle" | "loading" | "error";
 
 function StepBadge({ n }: { n: number }) {
   return (
-    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-400 font-bold text-black shadow-md shadow-amber-400/20 text-xs">
       {n}
     </span>
   );
@@ -52,17 +52,13 @@ export function ExchangeScreen() {
     };
   }, []);
 
-  // --- Step 1: find the invoice ---
   const [invoiceNumberInput, setInvoiceNumberInput] = useState("");
   const [lookupStatus, setLookupStatus] = useState<LookupStatus>("idle");
   const [invoice, setInvoice] = useState<GetInvoiceByNumberResponse | null>(null);
 
-  // Fallback used when the "get invoice by number" endpoint isn't available yet
-  // on the backend (currently only /finalize and /exchange exist there).
   const [manualMode, setManualMode] = useState(false);
   const [manualInvoiceItemId, setManualInvoiceItemId] = useState("");
 
-  // --- Step 2: selected line + replacement details ---
   const [selectedItem, setSelectedItem] = useState<InvoiceItemDto | null>(null);
   const [returnedQuantity, setReturnedQuantity] = useState(1);
   const [replacementProductId, setReplacementProductId] = useState<number | "">("");
@@ -94,8 +90,6 @@ export function ExchangeScreen() {
       setLookupStatus("idle");
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) {
-        // Either the invoice truly doesn't exist, or (today) the lookup
-        // endpoint itself isn't implemented on the backend yet.
         setLookupStatus("notFound");
       } else {
         setLookupStatus("error");
@@ -127,19 +121,17 @@ export function ExchangeScreen() {
   }
 
   async function handleSubmit() {
-    const invoiceItemId = manualMode
-      ? Number(manualInvoiceItemId)
-      : selectedItem?.invoiceItemId;
+    const invoiceItemId = manualMode ? Number(manualInvoiceItemId) : selectedItem?.invoiceItemId;
 
     if (!invoiceItemId || invoiceItemId <= 0) {
       setSubmitStatus("error");
-      setErrorMessage("الرجاء اختيار (أو إدخال) عنصر فاتورة صحيح.");
+      setErrorMessage("Please select or enter a valid invoice item.");
       return;
     }
 
     if (!replacementProductId) {
       setSubmitStatus("error");
-      setErrorMessage("الرجاء اختيار منتج بديل.");
+      setErrorMessage("Please choose a replacement product.");
       return;
     }
 
@@ -161,145 +153,147 @@ export function ExchangeScreen() {
       setSubmitStatus("idle");
     } catch (err) {
       setSubmitStatus("error");
-      setErrorMessage(err instanceof ApiError ? err.message : "حصل خطأ غير متوقع.");
+      setErrorMessage(err instanceof ApiError ? err.message : "An unexpected error occurred.");
     }
   }
 
   return (
-    <div dir="rtl" className="flex h-screen flex-col bg-[#F1F2EF]">
-      {/* Header */}
-      <header className="flex shrink-0 items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
+    <div dir="rtl" className="flex min-h-screen flex-col bg-slate-950 text-slate-100">
+      <header className="flex shrink-0 items-center justify-between border-b border-amber-500/20 bg-black/80 px-8 py-4 backdrop-blur-2xl shadow-xl">
         <div>
-          <p className="text-xs uppercase tracking-wide text-slate-400">نقطة البيع</p>
-          <h1 className="text-lg font-semibold">استبدال / إرجاع</h1>
+          <p className="text-xs uppercase tracking-widest text-amber-400 font-medium">Point of sale</p>
+          <h1 className="text-xl font-extrabold tracking-wide text-white">Exchange / return</h1>
         </div>
-        <div className="flex items-center gap-3 text-sm">
-          {currentUser && <span className="text-slate-300">{currentUser.fullName}</span>}
+        <div className="flex items-center gap-4 text-sm">
+          {currentUser && (
+            <span className="font-semibold text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-2xl">
+              {currentUser.fullName}
+            </span>
+          )}
           <Link
             to="/cashier"
-            className="flex items-center gap-1.5 rounded-lg border border-slate-600 px-3 py-1.5 transition hover:bg-slate-700"
+            className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/60 px-4 py-2 font-medium text-slate-200 transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-400"
           >
-            <ArrowLeft size={14} />
-            فاتورة جديدة
+            <ArrowLeft size={16} />
+            New invoice
           </Link>
           <button
             type="button"
             onClick={logout}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-600 px-3 py-1.5 transition hover:bg-slate-700"
+            className="flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2 font-medium text-red-400 transition hover:bg-red-500/20 hover:border-red-500/50"
           >
-            <LogOut size={14} />
-            تسجيل خروج
+            <LogOut size={16} />
+            Log out
           </button>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-3xl space-y-6 p-6">
-          {/* Step 1: locate the invoice item to exchange */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-800">
+      <div className="flex-1 overflow-y-auto p-6 md:p-8">
+        <div className="mx-auto max-w-4xl space-y-8">
+          <section className="rounded-3xl border border-amber-500/20 bg-black/80 p-6 md:p-8 backdrop-blur-2xl shadow-2xl">
+            <h2 className="mb-6 flex items-center gap-3 text-base font-bold text-amber-400">
               <StepBadge n={1} />
-              البحث عن الفاتورة
+              Find invoice
             </h2>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 type="number"
                 min={1}
-                placeholder="رقم الفاتورة"
+                placeholder="Invoice number..."
                 value={invoiceNumberInput}
                 onChange={(e) => setInvoiceNumberInput(e.target.value)}
-                className="flex-1 rounded-xl border border-slate-300 px-4 py-2.5 font-mono text-sm outline-none focus:border-emerald-500"
+                className="flex-1 rounded-2xl border border-slate-700 bg-slate-900/80 px-5 py-3 font-mono text-base text-white placeholder-slate-500 outline-none transition focus:border-amber-400 focus:ring-1 focus:ring-amber-400 shadow-inner"
               />
               <button
                 type="button"
                 onClick={handleLookup}
                 disabled={lookupStatus === "loading"}
-                className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-amber-400 px-7 py-3 text-base font-bold text-black transition hover:bg-amber-300 active:scale-95 disabled:opacity-50 shadow-lg shadow-amber-400/10"
               >
-                <Search size={14} />
-                {lookupStatus === "loading" ? "جارٍ البحث..." : "بحث"}
+                <Search size={18} />
+                {lookupStatus === "loading" ? "Searching..." : "Search"}
               </button>
             </div>
 
             {lookupStatus === "error" && (
-              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-                الرجاء إدخال رقم فاتورة صحيح.
+              <p className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400">
+                Please enter a valid invoice number.
               </p>
             )}
 
             {lookupStatus === "notFound" && !manualMode && (
-              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
-                <p className="text-amber-800">
-                  لم يتم العثور على فاتورة بهذا الرقم (أو خدمة البحث غير مفعّلة بعد).
+              <div className="mt-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm">
+                <p className="text-amber-200">
+                  No invoice was found for this number, or the lookup service is not enabled yet.
                 </p>
                 <button
                   type="button"
-                  className="mt-2 font-semibold text-emerald-700 hover:underline"
+                  className="mt-3 font-bold text-amber-400 transition hover:text-amber-300 hover:underline"
                   onClick={() => setManualMode(true)}
                 >
-                  ← أدخل رقم عنصر الفاتورة يدوياً بدلاً من ذلك
+                  ← Enter the invoice item ID manually instead
                 </button>
               </div>
             )}
 
             {manualMode && (
-              <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <label className="block text-sm font-medium text-slate-700">
-                  رقم عنصر الفاتورة
+              <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                <label className="block text-sm font-medium text-slate-300">
+                  Invoice item number
                   <input
                     type="number"
                     min={1}
                     value={manualInvoiceItemId}
                     onChange={(e) => setManualInvoiceItemId(e.target.value)}
-                    className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm outline-none focus:border-emerald-500"
+                    className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-2.5 font-mono text-sm text-white outline-none transition focus:border-amber-400"
                   />
                 </label>
-                <p className="mt-2 text-xs text-slate-500">
-                  اطلب من الكاشير أو المشرف رقم العنصر من الفاتورة الأصلية.
+                <p className="mt-2 text-xs text-slate-400">
+                  Ask the cashier or supervisor for the item number from the original invoice.
                 </p>
               </div>
             )}
 
             {invoice && (
-              <div className="mt-4">
-                <p className="mb-3 text-sm text-slate-600">
-                  فاتورة رقم <span className="font-mono font-semibold">#{invoice.invoiceNumber}</span> — الإجمالي:{" "}
-                  <span className="font-mono font-semibold">{invoice.total.toFixed(2)} د.أ</span>
+              <div className="mt-6">
+                <p className="mb-4 text-sm text-slate-300">
+                  Invoice <span className="font-mono font-bold text-amber-400">#{invoice.invoiceNumber}</span> — Total:{" "}
+                  <span className="font-mono font-bold text-amber-400">{invoice.total.toFixed(2)} JOD</span>
                 </p>
-                <div className="overflow-hidden rounded-xl border border-slate-200">
+                <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40">
                   <table className="w-full text-sm">
-                    <thead className="bg-slate-50 text-slate-500">
+                    <thead className="bg-slate-900/80 text-amber-400/80 border-b border-slate-800">
                       <tr>
-                        <th className="px-3 py-2 text-right font-medium">المنتج</th>
-                        <th className="px-3 py-2 text-right font-medium">الوحدة</th>
-                        <th className="px-3 py-2 text-right font-medium">الكمية المباعة</th>
-                        <th className="px-3 py-2 text-right font-medium">القابل للإرجاع</th>
-                        <th className="px-3 py-2"></th>
+                        <th className="px-4 py-3 text-right font-semibold">Product</th>
+                        <th className="px-4 py-3 text-right font-semibold">Unit</th>
+                        <th className="px-4 py-3 text-right font-semibold">Quantity sold</th>
+                        <th className="px-4 py-3 text-right font-semibold">Returnable</th>
+                        <th className="px-4 py-3"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-slate-800/60">
                       {invoice.items.map((item) => (
                         <tr
                           key={item.invoiceItemId}
-                          className={
-                            selectedItem?.invoiceItemId === item.invoiceItemId ? "bg-emerald-50" : ""
-                          }
+                          className={`transition ${
+                            selectedItem?.invoiceItemId === item.invoiceItemId ? "bg-amber-400/10" : "hover:bg-slate-800/30"
+                          }`}
                         >
-                          <td className="px-3 py-2 font-medium text-slate-800">
+                          <td className="px-4 py-3 font-medium text-slate-100">
                             {productName(products, item.productId)}
                           </td>
-                          <td className="px-3 py-2 text-slate-500">{item.unitSold}</td>
-                          <td className="px-3 py-2 font-mono">{item.quantity}</td>
-                          <td className="px-3 py-2 font-mono">{item.returnableQuantity}</td>
-                          <td className="px-3 py-2">
+                          <td className="px-4 py-3 text-slate-400">{item.unitSold}</td>
+                          <td className="px-4 py-3 font-mono text-slate-200">{item.quantity}</td>
+                          <td className="px-4 py-3 font-mono text-amber-400 font-semibold">{item.returnableQuantity}</td>
+                          <td className="px-4 py-3 text-left">
                             <button
                               type="button"
-                              className="font-semibold text-emerald-700 hover:underline disabled:cursor-default disabled:text-slate-300 disabled:no-underline"
+                              className="rounded-xl bg-amber-400/10 border border-amber-400/20 px-3 py-1 font-bold text-amber-400 transition hover:bg-amber-400 hover:text-black disabled:cursor-default disabled:opacity-30 disabled:hover:bg-amber-400/10 disabled:hover:text-amber-400"
                               disabled={item.returnableQuantity <= 0}
                               onClick={() => selectItem(item)}
                             >
-                              {item.returnableQuantity <= 0 ? "تم إرجاعه بالكامل" : "اختيار"}
+                              {item.returnableQuantity <= 0 ? "Fully returned" : "Select"}
                             </button>
                           </td>
                         </tr>
@@ -311,29 +305,28 @@ export function ExchangeScreen() {
             )}
           </section>
 
-          {/* Step 2: exchange details (shown once an item is selected, or in manual mode) */}
           {(selectedItem || manualMode) && (
-            <section className="rounded-2xl border border-slate-200 bg-white p-6">
-              <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <section className="rounded-3xl border border-amber-500/20 bg-black/80 p-6 md:p-8 backdrop-blur-2xl shadow-2xl">
+              <h2 className="mb-6 flex items-center gap-3 text-base font-bold text-amber-400">
                 <StepBadge n={2} />
-                تفاصيل الاستبدال
+                Exchange details
               </h2>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <label className="block text-sm font-medium text-slate-700">
-                  الكمية المرتجعة
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  Returned quantity
                   <input
                     type="number"
                     min={1}
                     max={selectedItem?.returnableQuantity}
                     value={returnedQuantity}
                     onChange={(e) => setReturnedQuantity(Number(e.target.value))}
-                    className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm outline-none focus:border-emerald-500"
+                    className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 font-mono text-base text-white outline-none transition focus:border-amber-400"
                   />
                 </label>
 
-                <label className="block text-sm font-medium text-slate-700">
-                  المنتج البديل
+                <label className="block text-sm font-medium text-slate-300">
+                  Replacement product
                   <select
                     value={replacementProductId}
                     onChange={(e) => {
@@ -341,10 +334,10 @@ export function ExchangeScreen() {
                       setReplacementProductId(id);
                       setReplacementUnitSold("piece");
                     }}
-                    className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                    className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-amber-400"
                   >
                     <option value="">
-                      {productsStatus === "loading" ? "جارٍ تحميل المنتجات..." : "اختر منتج..."}
+                      {productsStatus === "loading" ? "Loading products..." : "Select a product..."}
                     </option>
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -354,45 +347,45 @@ export function ExchangeScreen() {
                   </select>
                 </label>
 
-                <label className="block text-sm font-medium text-slate-700">
-                  وحدة البديل
+                <label className="block text-sm font-medium text-slate-300">
+                  Replacement unit
                   <select
                     value={replacementUnitSold}
                     onChange={(e) => setReplacementUnitSold(e.target.value as UnitSold)}
-                    className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                    className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-amber-400"
                   >
-                    <option value="piece">قطعة</option>
+                    <option value="piece">Piece</option>
                     <option value="package" disabled={!replacementProduct?.pricePerPackage}>
-                      عبوة
+                      Package
                     </option>
                   </select>
                 </label>
 
-                <label className="block text-sm font-medium text-slate-700">
-                  كمية البديل
+                <label className="block text-sm font-medium text-slate-300">
+                  Replacement quantity
                   <input
                     type="number"
                     min={1}
                     value={replacementQuantity}
                     onChange={(e) => setReplacementQuantity(Number(e.target.value))}
-                    className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm outline-none focus:border-emerald-500"
+                    className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 font-mono text-base text-white outline-none transition focus:border-amber-400"
                   />
                 </label>
               </div>
 
-              <label className="mt-4 block text-sm font-medium text-slate-700">
-                السبب (اختياري)
+              <label className="mt-5 block text-sm font-medium text-slate-300">
+                Reason (optional)
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm text-white outline-none transition focus:border-amber-400"
                   rows={2}
                   maxLength={255}
                 />
               </label>
 
               {submitStatus === "error" && errorMessage && (
-                <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+                <p className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400">
                   {errorMessage}
                 </p>
               )}
@@ -401,63 +394,60 @@ export function ExchangeScreen() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitStatus === "loading"}
-                className="mt-4 w-full rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
+                className="mt-6 w-full rounded-2xl bg-amber-400 py-3.5 text-base font-bold text-black transition hover:bg-amber-300 active:scale-95 disabled:opacity-50 shadow-lg shadow-amber-400/10"
               >
-                {submitStatus === "loading" ? "جارٍ التنفيذ..." : "تنفيذ الاستبدال"}
+                {submitStatus === "loading" ? "Processing..." : "Execute exchange"}
               </button>
             </section>
           )}
 
-          {/* Step 3: result */}
           {result && (
-            <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-              <div className="border-b border-slate-100 p-6">
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
-                    ✓
-                  </span>
-                  تم الاستبدال بنجاح
+            <section className="overflow-hidden rounded-3xl border border-emerald-500/30 bg-black/80 backdrop-blur-2xl shadow-2xl">
+              <div className="border-b border-slate-800 p-6 md:p-8">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-emerald-400">
+                  <CheckCircle2 size={24} className="text-emerald-400" />
+                  Exchange completed successfully
                 </h2>
-                <p className="mt-2 text-sm text-slate-500">
-                  عملية استبدال رقم <span className="font-mono">#{result.exchangeId}</span> على الفاتورة{" "}
-                  <span className="font-mono">#{result.invoiceId}</span>
+                <p className="mt-2 text-sm text-slate-400">
+                  Exchange process <span className="font-mono text-amber-400 font-bold">#{result.exchangeId}</span> for invoice{" "}
+                  <span className="font-mono text-amber-400 font-bold">#{result.invoiceId}</span>
                 </p>
               </div>
 
-              <div className="space-y-1.5 bg-slate-50 p-4 text-sm">
-                <div className="flex justify-between text-slate-500">
-                  <span>قيمة الصنف المرتجع</span>
-                  <span className="font-mono">{result.returnedItemValue.toFixed(2)}</span>
+              <div className="space-y-3 bg-slate-900/40 p-6 text-sm">
+                <div className="flex justify-between text-slate-300">
+                  <span>Returned item value</span>
+                  <span className="font-mono font-semibold text-slate-100">{result.returnedItemValue.toFixed(2)} JOD</span>
                 </div>
-                <div className="flex justify-between text-slate-500">
-                  <span>قيمة الصنف البديل</span>
-                  <span className="font-mono">{result.replacementItemValue.toFixed(2)}</span>
+                <div className="flex justify-between text-slate-300">
+                  <span>Replacement item value</span>
+                  <span className="font-mono font-semibold text-slate-100">{result.replacementItemValue.toFixed(2)} JOD</span>
                 </div>
-                <div className="flex items-baseline justify-between border-t border-dashed border-slate-200 pt-2">
-                  <span className="font-semibold text-emerald-700">
+                <div className="flex items-baseline justify-between border-t border-dashed border-slate-800 pt-3 text-base">
+                  <span className="font-bold text-amber-400">
                     {result.priceDifference > 0
-                      ? "مبلغ مستحق من الزبون"
+                      ? "Amount due from customer"
                       : result.priceDifference < 0
-                      ? "مبلغ مستحق للزبون"
-                      : "استبدال متكافئ"}
+                      ? "Amount due to customer"
+                      : "Equivalent exchange"}
                   </span>
-                  <span className="font-mono text-lg font-bold text-emerald-700">
-                    {Math.abs(result.priceDifference).toFixed(2)} د.أ
+                  <span className="font-mono text-xl font-bold text-amber-400">
+                    {Math.abs(result.priceDifference).toFixed(2)} JOD
                   </span>
                 </div>
-                <div className="flex justify-between border-t border-slate-200 pt-2 text-slate-900">
-                  <span>إجمالي الفاتورة الجديد</span>
-                  <span className="font-mono font-semibold">{result.newTotal.toFixed(2)} د.أ</span>
+                <div className="flex justify-between border-t border-slate-800 pt-3 text-slate-100 font-semibold">
+                  <span>New invoice total</span>
+                  <span className="font-mono font-bold text-emerald-400">{result.newTotal.toFixed(2)} JOD</span>
                 </div>
               </div>
 
-              <div className="p-4">
+              <div className="p-6">
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="w-full rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="w-full rounded-2xl border border-amber-400/30 bg-amber-400/10 py-3.5 text-sm font-bold text-amber-400 transition hover:bg-amber-400 hover:text-black"
                 >
-                  بدء عملية استبدال جديدة
+                  Start a new exchange
                 </button>
               </div>
             </section>

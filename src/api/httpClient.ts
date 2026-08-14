@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5090/api";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ??
+  "http://localhost:5090/api";
 
 export class ApiError extends Error {
   status: number;
@@ -18,15 +20,24 @@ function extractMessage(details: unknown, fallback: string): string {
     "message" in details &&
     typeof (details as { message: unknown }).message === "string"
   ) {
-    return (details as { message: string }).message;
+    const response = details as { message: string; errors?: unknown };
+
+    if (Array.isArray(response.errors) && response.errors.length > 0) {
+      const validationMessages = response.errors
+        .filter((error): error is string => typeof error === "string")
+        .join(" ");
+
+      if (validationMessages) {
+        return validationMessages;
+      }
+    }
+
+    return response.message;
   }
+
   return fallback;
 }
 
-/**
- * Clears the session and sends the user back to the login screen.
- * Used whenever the backend tells us the token is missing/expired/invalid.
- */
 function handleUnauthorized() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
@@ -58,11 +69,13 @@ async function request<TResponse>(
 
   if (!response.ok) {
     let details: unknown;
+
     try {
       details = await response.json();
     } catch {
       details = undefined;
     }
+
     throw new ApiError(
       extractMessage(details, `Request to ${path} failed`),
       response.status,
@@ -70,18 +83,38 @@ async function request<TResponse>(
     );
   }
 
-  // 204 No Content has no body to parse
   if (response.status === 204) {
     return undefined as TResponse;
   }
 
-  return (await response.json()) as TResponse;
+  const text = await response.text();
+
+  if (!text) {
+    return undefined as TResponse;
+  }
+
+  return JSON.parse(text) as TResponse;
 }
 
 export const httpClient = {
-  get: <TResponse>(path: string) => request<TResponse>(path, { method: "GET" }),
+  get: <TResponse>(path: string) =>
+    request<TResponse>(path, { method: "GET" }),
+
   post: <TResponse>(path: string, body: unknown) =>
-    request<TResponse>(path, { method: "POST", body: JSON.stringify(body) }),
+    request<TResponse>(path, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  put: <TResponse>(path: string, body: unknown) =>
+    request<TResponse>(path, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+
   patch: <TResponse>(path: string, body: unknown) =>
-    request<TResponse>(path, { method: "PATCH", body: JSON.stringify(body) }),
+    request<TResponse>(path, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
 };

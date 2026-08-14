@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, ArrowLeftRight, Search, Users } from "lucide-react";
+import { LogOut, ArrowLeftRight, Search, Users, RotateCcw } from "lucide-react";
 import { CartItemRow, type CartLine } from "./components/CartItemRow";
 import { CheckoutScreen } from "./CheckoutScreen";
 import { getAllProducts } from "../../api/productApi";
@@ -109,7 +109,7 @@ export function CashierCartPage() {
   function openCheckout() {
     if (cart.length === 0) {
       setStatus("error");
-      setErrorMessage("لا يمكن الدفع لسلة فارغة.");
+      setErrorMessage("Cannot checkout an empty cart.");
       return;
     }
     setStatus("idle");
@@ -133,10 +133,6 @@ export function CashierCartPage() {
         discountValue: discountType ? discountNumber : null,
       });
 
-      // The finalize response doesn't include per-item breakdown, so fetch the
-      // invoice we just created back from the server. This is the ONLY source
-      // of truth for what actually got saved (prices are snapshotted server-side
-      // and can differ from what the cart showed if a price changed).
       const savedInvoice = await invoiceService.getByNumber(response.invoiceNumber);
 
       setLastInvoiceNumber(savedInvoice.invoiceNumber);
@@ -145,7 +141,7 @@ export function CashierCartPage() {
         lines: savedInvoice.items.map((item) => ({
           productId: item.productId,
           productName:
-            products.find((p) => p.id === item.productId)?.name ?? `منتج #${item.productId}`,
+            products.find((p) => p.id === item.productId)?.name ?? `Product #${item.productId}`,
           unitSold: item.unitSold,
           quantity: item.quantity,
           unitPrice: item.unitPriceSnapshot,
@@ -162,65 +158,120 @@ export function CashierCartPage() {
       setStatus("idle");
       setShowCheckout(false);
 
-      // Give React a tick to render the print-only receipt before opening the print dialog
       setTimeout(() => window.print(), 100);
     } catch (err) {
       setStatus("error");
-      setErrorMessage(err instanceof ApiError ? err.message : "حصل خطأ غير متوقع.");
+      setErrorMessage(err instanceof ApiError ? err.message : "An unexpected error occurred.");
     }
   }
 
   return (
-    <div dir="rtl" className="h-screen bg-[#F1F2EF]">
-      <div className="cashier-screen flex h-screen flex-col">
-        {/* Header */}
-        <header className="flex shrink-0 items-center justify-between bg-[#1C2333] px-6 py-4 text-white shadow-md">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">نقطة البيع</p>
-            <h1 className="text-lg font-semibold">فاتورة جديدة</h1>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            {currentUser && <span className="text-slate-300">{currentUser.fullName}</span>}
-            <Link
-              to="/exchange"
-              className="flex items-center gap-1.5 rounded-lg border border-slate-600 px-3 py-1.5 transition hover:bg-slate-700"
-            >
-              <ArrowLeftRight size={14} />
-              استبدال / إرجاع
-            </Link>
-            <button
-              type="button"
-              onClick={logout}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-600 px-3 py-1.5 transition hover:bg-slate-700"
-            >
-              <LogOut size={14} />
-              تسجيل خروج
-            </button>
-          </div>
-        </header>
+    <div dir="ltr" className="fixed inset-0 z-50 flex h-screen w-screen flex-col overflow-hidden bg-slate-950 text-slate-100 select-none">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-amber-500/20 bg-black/90 px-6 backdrop-blur-2xl shadow-xl">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-400">Point of Sale</p>
+          <h1 className="text-base font-extrabold tracking-wide text-white">New Invoice</h1>
+        </div>
+        <div className="flex items-center gap-3 text-xs">
+          {currentUser && (
+            <span className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 font-semibold text-amber-300">
+              {currentUser.fullName}
+            </span>
+          )}
+          <Link
+            to="/exchange"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 font-medium text-slate-300 transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-400"
+          >
+            <ArrowLeftRight size={14} />
+            Exchange / Return
+          </Link>
+          <Link
+            to="/returns"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 font-medium text-slate-300 transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-400"
+          >
+            <RotateCcw size={14} />
+            Return Invoice
+          </Link>
+          <button
+            type="button"
+            onClick={logout}
+            className="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-1.5 font-medium text-red-400 transition hover:bg-red-500/20 hover:border-red-500/50"
+          >
+            <LogOut size={14} />
+            Log out
+          </button>
+        </div>
+      </header>
 
-        <div className="flex flex-1 overflow-hidden">
-          {/* Cart / order ticket */}
-          <aside className="flex w-[320px] shrink-0 flex-col border-l border-slate-200 bg-white">
-            <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3.5">
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-                  السلة
-                </p>
-                <p className="text-sm font-semibold text-slate-900">فاتورة جديدة</p>
-              </div>
-              <span className="flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
-                <Users size={12} />
-                {itemCount} صنف
-              </span>
+      <div className="flex flex-1 overflow-hidden p-4 gap-4 box-border">
+        <section className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-amber-500/20 bg-black/80 p-4 backdrop-blur-2xl shadow-2xl">
+          <div className="mb-4 flex items-center justify-between gap-4 border-b border-slate-800/80 pb-3 shrink-0">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-amber-400">
+              Available products
+            </h2>
+            <div className="relative w-72">
+              <Search
+                size={16}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search product..."
+                className="w-full rounded-xl border border-slate-700 bg-slate-900 py-1.5 pl-9 pr-3 text-xs text-white placeholder-slate-500 outline-none transition focus:border-amber-400"
+              />
             </div>
+          </div>
 
+          <div className="flex-1 overflow-y-auto pr-1">
+            {productsStatus === "loading" ? (
+              <p className="mt-12 text-center text-xs font-semibold text-slate-400">Loading products...</p>
+            ) : productsStatus === "error" ? (
+              <p className="mt-12 text-center text-xs font-semibold text-red-400">Unable to load products from the server.</p>
+            ) : filteredProducts.length === 0 ? (
+              <p className="mt-12 text-center text-xs font-semibold text-slate-400">No matching results</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {filteredProducts.map((product) => (
+                  <button
+                    key={product.id}
+                    type="button"
+                    onClick={() => addProduct(product.id)}
+                    className="group flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-900/60 p-3 text-left transition hover:border-amber-400/50 hover:bg-amber-400/10 active:scale-[0.98]"
+                  >
+                    <p className="text-xs font-bold text-slate-100 transition group-hover:text-amber-300 line-clamp-2">{product.name}</p>
+                    <p className="mt-3 font-mono text-base font-extrabold text-amber-400">
+                      {product.pricePerPiece.toFixed(2)} <span className="text-[10px] font-sans text-slate-400">JOD</span>
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <aside className="flex w-96 shrink-0 flex-col rounded-2xl border border-amber-500/20 bg-black/80 backdrop-blur-2xl shadow-2xl overflow-hidden">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-800/80 px-4 py-3 shrink-0">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                Cart
+              </p>
+              <p className="text-sm font-extrabold text-white">New invoice</p>
+            </div>
+            <span className="flex items-center gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-bold text-amber-300">
+              <Users size={13} className="text-amber-400" />
+              {itemCount} item{itemCount === 1 ? "" : "s"}
+            </span>
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
             {cart.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-slate-400">
-                السلة فارغة — اختر منتج من القائمة
+              <div className="flex h-full items-center justify-center p-6 text-center text-xs font-medium text-slate-400">
+                Cart is empty — choose a product from the list
               </div>
             ) : (
-              <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto">
+              <ul className="divide-y divide-slate-800/60">
                 {cart.map((line) => (
                   <CartItemRow
                     key={line.product.id}
@@ -231,158 +282,112 @@ export function CashierCartPage() {
                 ))}
               </ul>
             )}
+          </div>
 
-            <div className="border-t border-slate-100 p-4">
-              <div className="flex gap-2">
-                <select
-                  value={discountType}
-                  onChange={(e) => {
-                    const value = e.target.value as DiscountType | "";
-                    setDiscountType(value);
-                    if (!value) setDiscountValue("");
-                  }}
-                  className="flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-sm text-slate-700 focus:border-emerald-400 focus:outline-none"
-                >
-                  <option value="">بدون خصم</option>
-                  <option value="fixed">مبلغ ثابت</option>
-                  <option value="percentage">نسبة مئوية</option>
-                </select>
-                {discountType && (
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="0"
-                    value={discountValue}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (/^\d*\.?\d*$/.test(value)) setDiscountValue(value);
-                    }}
-                    className="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-sm font-mono focus:border-emerald-400 focus:outline-none"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-1.5 border-t border-slate-100 bg-slate-50 p-4 text-sm">
-              <div className="flex justify-between text-slate-500">
-                <span>المجموع الفرعي</span>
-                <span className="font-mono">{subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-slate-500">
-                <span>الخصم</span>
-                <span className="font-mono">-{discountAmount.toFixed(2)}</span>
-              </div>
-              <div className="flex items-baseline justify-between border-t border-dashed border-slate-200 pt-2 text-base font-semibold text-slate-900">
-                <span>الإجمالي</span>
-                <span className="font-mono">{total.toFixed(2)} د.أ</span>
-              </div>
-            </div>
-
-            <div className="p-4">
-              {status === "error" && errorMessage && (
-                <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-                  {errorMessage}
-                </p>
-              )}
-              {lastInvoiceNumber && (
-                <p className="mb-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-600">
-                  تم حفظ الفاتورة رقم #{lastInvoiceNumber}
-                </p>
-              )}
-              <button
-                type="button"
-                onClick={openCheckout}
-                className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+          <div className="border-t border-slate-800/80 p-3 bg-slate-950/40 shrink-0">
+            <div className="flex gap-2">
+              <select
+                value={discountType}
+                onChange={(e) => {
+                  const value = e.target.value as DiscountType | "";
+                  setDiscountType(value);
+                  if (!value) setDiscountValue("");
+                }}
+                className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-slate-200 outline-none transition focus:border-amber-400"
               >
-                الدفع
-              </button>
-            </div>
-          </aside>
-
-          {/* Products */}
-          <section className="flex-1 overflow-y-auto p-6">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-                المنتجات
-              </h2>
-              <div className="relative w-64">
-                <Search
-                  size={14}
-                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-                />
+                <option value="">No discount</option>
+                <option value="fixed">Fixed amount</option>
+                <option value="percentage">Percentage</option>
+              </select>
+              {discountType && (
                 <input
                   type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="ابحث عن منتج..."
-                  className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-3 pr-9 text-sm text-slate-700 focus:border-emerald-400 focus:outline-none"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={discountValue}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*\.?\d*$/.test(value)) setDiscountValue(value);
+                  }}
+                  className="w-20 rounded-xl border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs font-mono text-white text-center outline-none transition focus:border-amber-400"
                 />
-              </div>
+              )}
             </div>
+          </div>
 
-            {productsStatus === "loading" ? (
-              <p className="mt-10 text-center text-sm text-slate-400">جارٍ تحميل المنتجات...</p>
-            ) : productsStatus === "error" ? (
-              <p className="mt-10 text-center text-sm text-red-500">تعذّر تحميل المنتجات من الخادم.</p>
-            ) : filteredProducts.length === 0 ? (
-              <p className="mt-10 text-center text-sm text-slate-400">لا توجد نتائج مطابقة</p>
-            ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-                {filteredProducts.map((product) => (
-                  <button
-                    key={product.id}
-                    type="button"
-                    onClick={() => addProduct(product.id)}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 text-right transition hover:border-emerald-400 hover:shadow-md"
-                  >
-                    <p className="font-medium text-slate-900">{product.name}</p>
-                    <p className="mt-2 font-mono font-semibold text-emerald-700">
-                      {product.pricePerPiece.toFixed(2)} د.أ
-                    </p>
-                  </button>
-                ))}
-              </div>
+          <div className="space-y-1.5 border-t border-slate-800/80 bg-slate-950/80 p-4 text-xs shrink-0">
+            <div className="flex justify-between text-slate-400 font-medium">
+              <span>Subtotal</span>
+              <span className="font-mono text-slate-200">{subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-slate-400 font-medium">
+              <span>Discount</span>
+              <span className="font-mono text-red-400">-{discountAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex items-baseline justify-between border-t border-slate-800/80 pt-2 text-sm font-bold text-white">
+              <span>Total</span>
+              <span className="font-mono text-xl font-extrabold text-amber-400">{total.toFixed(2)} <span className="text-xs font-sans">JOD</span></span>
+            </div>
+          </div>
+
+          <div className="p-3 bg-slate-950/90 shrink-0">
+            {status === "error" && errorMessage && (
+              <p className="mb-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-400">
+                {errorMessage}
+              </p>
             )}
-          </section>
-        </div>
-
-        {showCheckout && (
-          <CheckoutScreen
-            invoiceLabel="فاتورة جديدة"
-            cashierName={currentUser?.fullName ?? "—"}
-            lines={cart}
-            subtotal={subtotal}
-            discountAmount={discountAmount}
-            total={total}
-            loading={status === "loading"}
-            onConfirm={handleFinalize}
-            onCancel={() => setShowCheckout(false)}
-          />
-        )}
+            {lastInvoiceNumber && (
+              <p className="mb-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-400">
+                Invoice saved #{lastInvoiceNumber}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={openCheckout}
+              className="w-full rounded-xl bg-amber-400 py-2.5 text-sm font-bold text-black transition hover:bg-amber-300 active:scale-95 shadow-lg shadow-amber-400/10"
+            >
+              Pay
+            </button>
+          </div>
+        </aside>
       </div>
+
+      {showCheckout && (
+        <CheckoutScreen
+          invoiceLabel="New invoice"
+          cashierName={currentUser?.fullName ?? "—"}
+          lines={cart}
+          subtotal={subtotal}
+          discountAmount={discountAmount}
+          total={total}
+          loading={status === "loading"}
+          onConfirm={handleFinalize}
+          onCancel={() => setShowCheckout(false)}
+        />
+      )}
 
       {receipt && (
         <div className="receipt">
-          <div className="receipt-store-name">سوبرماركت المدينة</div>
-          <div className="receipt-tagline">شارع الملك حسين — 06-1234567</div>
+          <div className="receipt-store-name">AL-ISRAA Supermarket</div>
+          <div className="receipt-tagline">Nablus — Sh. Sufyan</div>
 
           <div className="receipt-divider" />
 
           <div className="receipt-meta">
             <div>
-              <span>فاتورة رقم</span>
+              <span>Invoice #</span>
               <span>#{receipt.invoiceNumber}</span>
             </div>
             <div>
-              <span>التاريخ</span>
-              <span>{receipt.createdAt.toLocaleDateString("ar-JO")}</span>
+              <span>Date</span>
+              <span>{receipt.createdAt.toLocaleDateString("en-GB")}</span>
             </div>
             <div>
-              <span>الوقت</span>
-              <span>{receipt.createdAt.toLocaleTimeString("ar-JO")}</span>
+              <span>Time</span>
+              <span>{receipt.createdAt.toLocaleTimeString("en-GB")}</span>
             </div>
             <div>
-              <span>الكاشير</span>
+              <span>Cashier</span>
               <span>{currentUser?.fullName ?? "—"}</span>
             </div>
           </div>
@@ -404,25 +409,25 @@ export function CashierCartPage() {
           <div className="receipt-divider" />
 
           <div className="receipt-summary-line">
-            <span>المجموع الفرعي</span>
+            <span>Subtotal</span>
             <span>{receipt.subtotal.toFixed(2)}</span>
           </div>
           <div className="receipt-summary-line">
-            <span>الخصم</span>
+            <span>Discount</span>
             <span>-{receipt.discountAmount.toFixed(2)}</span>
           </div>
 
           <div className="receipt-total">
-            <span>الإجمالي</span>
-            <span>{receipt.total.toFixed(2)} د.أ</span>
+            <span>Total</span>
+            <span>{receipt.total.toFixed(2)} JOD</span>
           </div>
 
           <div className="receipt-divider" />
 
           <div className="receipt-footer">
-            شكراً لتسوقكم معنا
+            Thank you for shopping with us
             <br />
-            نتمنى لكم يوماً سعيداً
+            Have a nice day
           </div>
         </div>
       )}

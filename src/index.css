@@ -17,3 +17,36 @@ body {
   font-family: Inter, sans-serif;
   background: #020617;
 }
+
+.pos-page {
+  min-height: 100vh;
+  background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?q=80&w=1920&auto=format&fit=crop');
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.pos-panel {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 1.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px);
+}
+
+.pos-kicker { color: #fbbf24; font-size: .7rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+.pos-label { display: grid; gap: .4rem; color: #e2e8f0; font-size: .85rem; font-weight: 700; }
+.pos-input { width: 100%; border: 1px solid rgba(255,255,255,.18); border-radius: .75rem; background: rgba(15,23,42,.8); padding: .7rem .8rem; color: white; outline: none; }
+.pos-input:focus { border-color: #fbbf24; }
+.pos-primary, .pos-secondary, .pos-danger, .pos-table-button, .pos-icon-button { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; border-radius: .75rem; font-weight: 700; transition: .15s ease; cursor: pointer; }
+.pos-primary { background: #fbbf24; color: #0f172a; padding: .75rem 1rem; }
+.pos-primary:hover { background: #fcd34d; }
+.pos-secondary, .pos-table-button { border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.1); color: white; padding: .7rem .9rem; }
+.pos-secondary:hover, .pos-table-button:hover { background: rgba(255,255,255,.2); }
+.pos-danger { border: 1px solid rgba(248,113,113,.35); background: rgba(220,38,38,.85); color: white; padding: .7rem .9rem; }
+.pos-danger:hover { background: #dc2626; }
+.pos-icon-button { height: 2.4rem; width: 2.4rem; color: #fbbf24; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08); }
+.pos-muted { color: #cbd5e1; font-size: .9rem; }
+.pos-error, .pos-success { border-radius: .8rem; padding: .85rem 1rem; font-weight: 700; }
+.pos-error { border: 1px solid rgba(248,113,113,.4); background: rgba(127,29,29,.65); color: #fecaca; }
+.pos-success { border: 1px solid rgba(74,222,128,.35); background: rgba(20,83,45,.65); color: #bbf7d0; }

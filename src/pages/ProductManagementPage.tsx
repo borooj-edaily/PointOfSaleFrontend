@@ -9,6 +9,7 @@ import {
   getLowStockProducts,
   getProductById,
   updateProduct,
+  type LowStockDto,
   type ProductDto,
   type SellByType,
 } from "../api/productApi";
@@ -22,7 +23,7 @@ export default function ProductManagementPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<ProductDto | null>(null);
   const [form, setForm] = useState(emptyEdit);
-  const [lowStock, setLowStock] = useState<ProductDto[]>([]);
+  const [lowStock, setLowStock] = useState<LowStockDto[]>([]);
   const [threshold, setThreshold] = useState("10");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -38,7 +39,7 @@ export default function ProductManagementPage() {
 
   useEffect(() => {
     void loadProducts();
-    getAllCategories(false).then(setCategories).catch(() => undefined);
+    getAllCategories({ onlyActive: false }).then(setCategories).catch(() => undefined);
   }, []);
 
   async function loadLowStock() {
@@ -70,14 +71,14 @@ export default function ProductManagementPage() {
 
   async function deactivate(product: ProductDto) {
     if (!window.confirm(`Deactivate ${product.name}?`)) return;
-    try { await deactivateProduct(product.id, { id: product.id, updatedByUserId: user?.id ?? null }); setSuccess("Product deactivated."); void loadProducts(); }
+    try { await deactivateProduct(product.id, user?.id ?? null); setSuccess("Product deactivated."); void loadProducts(); }
     catch (err) { setError(err instanceof Error ? err.message : "Could not deactivate product."); }
   }
 
   return <div dir="rtl" className="pos-page px-5 py-8"><main className="mx-auto max-w-7xl">
     <header className="pos-panel mb-6 flex flex-wrap items-center justify-between gap-4 p-6">
       <div className="flex items-center gap-3"><Link to="/dashboard" className="pos-icon-button" aria-label="Back"><ArrowRight size={20} /></Link><div><p className="pos-kicker">AL-ISRAA Supermarket</p><h1 className="text-2xl font-black text-white">Product management</h1></div></div>
-      <Link to="/products" className="pos-primary"><PackagePlus size={18} /> Add new product</Link>
+      <Link to="/products/add" className="pos-primary"><PackagePlus size={18} /> Add new product</Link>
     </header>
     {error && <p className="pos-error mb-5">{error}</p>}{success && <p className="pos-success mb-5">{success}</p>}
     <div className="grid gap-6 lg:grid-cols-[380px_1fr]">

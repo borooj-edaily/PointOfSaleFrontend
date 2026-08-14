@@ -16,7 +16,7 @@ export function LowStockWidget() {
 
   if (isLoading) {
     return (
-      <div className="mb-5 flex items-center justify-center rounded-2xl border border-slate-200 bg-white py-6">
+      <div className="mb-5 flex items-center justify-center rounded-2xl border border-slate-800 bg-black/80 py-6 backdrop-blur-2xl">
         <Loader2 size={18} className="animate-spin text-slate-400" />
       </div>
     );
@@ -25,20 +25,20 @@ export function LowStockWidget() {
   if (items.length === 0) return null;
 
   return (
-    <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+    <div className="mb-5 rounded-2xl border border-amber-500/20 bg-black/80 p-5 backdrop-blur-2xl shadow-xl">
       <div className="mb-3 flex items-center gap-2">
-        <AlertTriangle size={18} className="text-amber-600" />
-        <p className="text-sm font-semibold text-amber-800">
-          {items.length} صنف وصل لحد المخزون الأدنى
+        <AlertTriangle size={18} className="text-amber-400" />
+        <p className="text-sm font-semibold text-amber-300">
+          {items.length} item{items.length !== 1 ? "s" : ""} reached minimum stock
         </p>
       </div>
 
       <ul className="space-y-1.5">
         {items.slice(0, 4).map((item) => (
           <li key={item.id} className="flex items-center justify-between text-sm">
-            <span className="text-slate-700">{item.name}</span>
-            <span className="font-mono text-xs text-amber-700">
-              {item.stockInPieces} حبة متبقية
+            <span className="text-slate-300">{item.name}</span>
+            <span className="font-mono text-xs text-amber-400">
+              {item.stockInPieces} left
             </span>
           </li>
         ))}
@@ -46,9 +46,9 @@ export function LowStockWidget() {
 
       <Link
         to="/products"
-        className="mt-3 inline-block text-xs font-medium text-amber-700 underline hover:text-amber-900"
+        className="mt-3 inline-block text-xs font-medium text-amber-400 underline hover:text-amber-300"
       >
-        عرض كل الأصناف
+        View all products
       </Link>
     </div>
   );

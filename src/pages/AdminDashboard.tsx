@@ -79,39 +79,8 @@ export default function AdminDashboard() {
             className="flex flex-wrap items-center"
             style={{ gap: "16px", marginTop: "12px" }}
           >
-    <div style={{ minHeight: "100vh", background: "#0f172a", color: "white", padding: "2rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2rem" }}>
-        <h1>لوحة تحكم الادمن</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Link
-            to="/categories"
-            style={{
-              background: "#7c3aed",
-              color: "white",
-              padding: "0.5rem 1rem",
-              borderRadius: "0.5rem",
-              textDecoration: "none",
-              fontSize: "0.875rem",
-            }}
-          >
-            الكاتيجوريز
-          </Link>
-          <Link
-            to="/products"
-            style={{
-              background: "#059669",
-              color: "white",
-              padding: "0.5rem 1rem",
-              borderRadius: "0.5rem",
-              textDecoration: "none",
-              fontSize: "0.875rem",
-            }}
-          >
-            الأصناف
-          </Link>
-          {user?.permissions.includes("manage_inventory") && (
             <Link
-              to="/products"
+              to="/products/add"
               className="flex items-center rounded-2xl bg-amber-400 font-bold text-slate-950 shadow-lg transition-all hover:bg-amber-300 active:scale-95"
               style={{
                 padding: "12px 20px",
@@ -167,7 +136,7 @@ export default function AdminDashboard() {
             </Link>
 
             <Link
-              to="/product-management"
+              to="/products"
               className="flex items-center rounded-2xl border border-white/20 bg-white/10 font-bold text-white shadow-lg transition-all hover:bg-white/20 active:scale-95"
               style={{ padding: "12px 20px", gap: "8px", fontSize: "1rem", textDecoration: "none" }}
             >

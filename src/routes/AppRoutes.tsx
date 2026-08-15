@@ -1,6 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "../pages/Login";
-import ComingSoon from "../pages/ComingSoon";
 import Unauthorized from "../pages/Unauthorized";
 import AdminDashboard from "../pages/AdminDashboard";
 import StaffHome from "../pages/Staffhome";
@@ -17,6 +16,9 @@ import CategoryManagementPage from "../pages/CategoryManagementPage";
 import { ReturnScreen } from "../features/returns/ReturnScreen";
 import UserManagementPage from "../pages/UserManagementPage";
 import ShiftManagementPage from "../pages/ShiftManagementPage";
+import InvoiceHistoryPage from "../pages/Invoicehistorypage";
+import ReportsPage from "../pages/ReportsPage";
+import DebtsPage from "../pages/DebtsPage";
 
 const router = createBrowserRouter([
   {
@@ -156,7 +158,23 @@ const router = createBrowserRouter([
     path: "/reports",
     element: (
       <PermissionRoute permission="view_reports">
-        <ComingSoon title="Reports" />
+        <ReportsPage />
+      </PermissionRoute>
+    ),
+  },
+  {
+    path: "/invoices",
+    element: (
+      <ProtectedRoute>
+        <InvoiceHistoryPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/debts",
+    element: (
+      <PermissionRoute permission="record_debt">
+        <DebtsPage />
       </PermissionRoute>
     ),
   },

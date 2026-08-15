@@ -13,6 +13,8 @@ import {
   ClipboardList,
   Users,
   Clock3,
+  BarChart3,
+  History,
 } from "lucide-react";
 import {
   getDashboardStats,
@@ -161,6 +163,26 @@ export default function AdminDashboard() {
               <Clock3 size={20} />
               <span>Shifts</span>
             </Link>
+
+            <Link
+              to="/invoices"
+              className="flex items-center rounded-2xl border border-white/20 bg-white/10 font-bold text-white shadow-lg transition-all hover:bg-white/20 active:scale-95"
+              style={{ padding: "12px 20px", gap: "8px", fontSize: "1rem", textDecoration: "none" }}
+            >
+              <History size={20} />
+              <span>Invoices</span>
+            </Link>
+
+            {user?.permissions.includes("view_reports") && (
+              <Link
+                to="/reports"
+                className="flex items-center rounded-2xl border border-white/20 bg-white/10 font-bold text-white shadow-lg transition-all hover:bg-white/20 active:scale-95"
+                style={{ padding: "12px 20px", gap: "8px", fontSize: "1rem", textDecoration: "none" }}
+              >
+                <BarChart3 size={20} />
+                <span>Reports</span>
+              </Link>
+            )}
 
             {user && (
               <div

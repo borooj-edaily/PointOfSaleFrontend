@@ -6,6 +6,7 @@ import {
   Percent,
   Receipt,
   Split,
+  Tag,
   Users,
 } from "lucide-react";
 import type { CartLine } from "./components/CartItemRow";
@@ -23,7 +24,8 @@ interface CheckoutScreenProps {
 }
 
 function unitPrice(line: CartLine): number {
-  return line.unitSold === "package" ? line.product.pricePerPackage ?? 0 : line.product.pricePerPiece;
+  const catalog = line.unitSold === "package" ? line.product.pricePerPackage ?? 0 : line.product.pricePerPiece;
+  return line.overridePrice ?? catalog;
 }
 
 function unitLabel(line: CartLine): string {
@@ -136,7 +138,14 @@ export function CheckoutScreen({
                 </span>
                 <div>
                   <p className="text-xs font-bold leading-tight text-slate-200 line-clamp-1">{line.product.name}</p>
-                  <p className="text-[10px] font-medium text-slate-400 mt-0.5">{unitLabel(line)}</p>
+                  <p className="flex items-center gap-1 text-[10px] font-medium text-slate-400 mt-0.5">
+                    {unitLabel(line)}
+                    {line.overridePrice != null && (
+                      <span className="flex items-center gap-0.5 text-amber-400">
+                        <Tag size={9} /> overridden
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
               <span className="font-mono text-xs font-extrabold text-amber-400">

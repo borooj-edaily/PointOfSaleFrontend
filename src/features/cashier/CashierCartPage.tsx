@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, ArrowLeftRight, Search, Users, RotateCcw } from "lucide-react";
+import {
+  LogOut,
+  ArrowLeftRight,
+  Search,
+  Users,
+  RotateCcw,
+  PauseCircle,
+  PlayCircle,
+  Trash2,
+  X,
+  Tag,
+  HandCoins,
+} from "lucide-react";
 import { CartItemRow, type CartLine } from "./components/CartItemRow";
 import { CheckoutScreen } from "./CheckoutScreen";
 import { getAllProducts } from "../../api/productApi";
@@ -9,10 +21,28 @@ import { ApiError } from "../../api/httpClient";
 import { getCurrentUser, logout } from "../../api/authApi";
 import type { DiscountType } from "../../types/invoice";
 import type { Product } from "../../types/catalog";
+import {
+  getHeldInvoices,
+  holdInvoice,
+  removeHeldInvoice,
+  type HeldInvoice,
+} from "./heldInvoices";
 import "./cashier.css";
+
+function catalogUnitPrice(line: CartLine): number {
+  return line.unitSold === "package" ? line.product.pricePerPackage ?? 0 : line.product.pricePerPiece;
+}
+
+function effectiveUnitPrice(line: CartLine): number {
+  return line.overridePrice ?? catalogUnitPrice(line);
+}
 
 export function CashierCartPage() {
   const currentUser = getCurrentUser();
+  const permissions = currentUser?.permissions ?? [];
+  const canOverridePrice = permissions.includes("edit_price");
+  const canRecordDebt = permissions.includes("record_debt");
+
   const [products, setProducts] = useState<Product[]>([]);
   const [productsStatus, setProductsStatus] = useState<"loading" | "idle" | "error">("loading");
   const [cart, setCart] = useState<CartLine[]>([]);
@@ -23,6 +53,32 @@ export function CashierCartPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastInvoiceNumber, setLastInvoiceNumber] = useState<number | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
+
+  // Debt Notebook — record this invoice as deferred payment under a nickname
+  // instead of collecting cash now. Requires the record_debt permission.
+  const [isDebt, setIsDebt] = useState(false);
+  const [debtorNickname, setDebtorNickname] = useState("");
+
+  // Price Override — a cashier holding edit_price can charge a different
+  // price for a single line without leaving the cart.
+  const [overrideModal, setOverrideModal] = useState<{
+    productId: number;
+    productName: string;
+    catalogPrice: number;
+    price: string;
+    reason: string;
+  } | null>(null);
+
+  // Hold Invoice — park the current cart so the cashier can serve the next
+  // customer, then resume it later exactly as it was left.
+  const [heldInvoices, setHeldInvoices] = useState<HeldInvoice[]>([]);
+  const [showHeldPanel, setShowHeldPanel] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      setHeldInvoices(getHeldInvoices(currentUser.id));
+    }
+  }, [currentUser?.id]);
   const [receipt, setReceipt] = useState<{
     invoiceNumber: number;
     lines: {
@@ -37,6 +93,8 @@ export function CashierCartPage() {
     discountAmount: number;
     total: number;
     createdAt: Date;
+    isDebt: boolean;
+    debtorNickname: string | null;
   } | null>(null);
 
   useEffect(() => {
@@ -90,10 +148,7 @@ export function CashierCartPage() {
 
   const itemCount = cart.reduce((sum, line) => sum + line.quantity, 0);
 
-  const subtotal = cart.reduce((sum, line) => {
-    const price = line.unitSold === "package" ? line.product.pricePerPackage ?? 0 : line.product.pricePerPiece;
-    return sum + price * line.quantity;
-  }, 0);
+  const subtotal = cart.reduce((sum, line) => sum + effectiveUnitPrice(line) * line.quantity, 0);
 
   const discountNumber = discountValue === "" ? 0 : Number(discountValue);
 
@@ -128,9 +183,13 @@ export function CashierCartPage() {
           productId: line.product.id,
           unitSold: line.unitSold,
           quantity: line.quantity,
+          overridePrice: line.overridePrice ?? null,
+          overrideReason: line.overrideReason ?? null,
         })),
         discountType: discountType || null,
         discountValue: discountType ? discountNumber : null,
+        isDebt: isDebt || undefined,
+        debtorNickname: isDebt ? debtorNickname.trim() : null,
       });
 
       const savedInvoice = await invoiceService.getByNumber(response.invoiceNumber);
@@ -151,10 +210,14 @@ export function CashierCartPage() {
         discountAmount: savedInvoice.subtotal - savedInvoice.total,
         total: savedInvoice.total,
         createdAt: new Date(savedInvoice.createdAt),
+        isDebt: savedInvoice.isDebt,
+        debtorNickname: savedInvoice.debtorNickname,
       });
       setCart([]);
       setDiscountType("");
       setDiscountValue("");
+      setIsDebt(false);
+      setDebtorNickname("");
       setStatus("idle");
       setShowCheckout(false);
 
@@ -163,6 +226,125 @@ export function CashierCartPage() {
       setStatus("error");
       setErrorMessage(err instanceof ApiError ? err.message : "An unexpected error occurred.");
     }
+  }
+
+  // A debt invoice has no cash tendered, so it skips the cash-payment screen
+  // and finalizes directly once the nickname is filled in.
+  async function handleRecordDebt() {
+    if (cart.length === 0) {
+      setStatus("error");
+      setErrorMessage("Cannot checkout an empty cart.");
+      return;
+    }
+    if (!debtorNickname.trim()) {
+      setStatus("error");
+      setErrorMessage("Enter a nickname for the debtor before recording the debt.");
+      return;
+    }
+    await handleFinalize();
+  }
+
+  // ---------------------------------------------------------------------
+  // Hold Invoice
+  // ---------------------------------------------------------------------
+
+  function handleHold() {
+    if (!currentUser) return;
+    if (cart.length === 0) {
+      setStatus("error");
+      setErrorMessage("Cannot hold an empty cart.");
+      return;
+    }
+
+    holdInvoice(currentUser.id, {
+      cart,
+      discountType,
+      discountValue,
+      isDebt,
+      debtorNickname,
+    });
+
+    setHeldInvoices(getHeldInvoices(currentUser.id));
+    setCart([]);
+    setDiscountType("");
+    setDiscountValue("");
+    setIsDebt(false);
+    setDebtorNickname("");
+    setStatus("idle");
+    setErrorMessage(null);
+  }
+
+  function handleResume(held: HeldInvoice) {
+    if (!currentUser) return;
+    if (cart.length > 0) {
+      const confirmSwitch = window.confirm(
+        "The current cart is not empty. Resuming a held invoice will replace it. Continue?"
+      );
+      if (!confirmSwitch) return;
+    }
+
+    setCart(held.cart);
+    setDiscountType(held.discountType);
+    setDiscountValue(held.discountValue);
+    setIsDebt(held.isDebt);
+    setDebtorNickname(held.debtorNickname);
+    removeHeldInvoice(currentUser.id, held.id);
+    setHeldInvoices(getHeldInvoices(currentUser.id));
+    setShowHeldPanel(false);
+  }
+
+  function handleDeleteHeld(holdId: string) {
+    if (!currentUser) return;
+    removeHeldInvoice(currentUser.id, holdId);
+    setHeldInvoices(getHeldInvoices(currentUser.id));
+  }
+
+  // ---------------------------------------------------------------------
+  // Price Override
+  // ---------------------------------------------------------------------
+
+  function openOverrideModal(productId: number) {
+    const line = cart.find((l) => l.product.id === productId);
+    if (!line) return;
+
+    setOverrideModal({
+      productId,
+      productName: line.product.name,
+      catalogPrice: catalogUnitPrice(line),
+      price: line.overridePrice != null ? String(line.overridePrice) : "",
+      reason: line.overrideReason ?? "",
+    });
+  }
+
+  function saveOverride() {
+    if (!overrideModal) return;
+    const { productId, price, reason } = overrideModal;
+    const parsed = price.trim() === "" ? null : Number(price);
+
+    setCart((prev) =>
+      prev.map((line) =>
+        line.product.id === productId
+          ? {
+              ...line,
+              overridePrice: parsed,
+              overrideReason: parsed != null ? reason.trim() || null : null,
+            }
+          : line
+      )
+    );
+    setOverrideModal(null);
+  }
+
+  function clearOverride() {
+    if (!overrideModal) return;
+    setCart((prev) =>
+      prev.map((line) =>
+        line.product.id === overrideModal.productId
+          ? { ...line, overridePrice: null, overrideReason: null }
+          : line
+      )
+    );
+    setOverrideModal(null);
   }
 
   return (
@@ -178,6 +360,19 @@ export function CashierCartPage() {
               {currentUser.fullName}
             </span>
           )}
+          <button
+            type="button"
+            onClick={() => setShowHeldPanel(true)}
+            className="relative flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 font-medium text-slate-300 transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-400"
+          >
+            <PauseCircle size={14} />
+            Held invoices
+            {heldInvoices.length > 0 && (
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-extrabold text-black">
+                {heldInvoices.length}
+              </span>
+            )}
+          </button>
           <Link
             to="/exchange"
             className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 font-medium text-slate-300 transition hover:border-amber-400/50 hover:bg-slate-800 hover:text-amber-400"
@@ -278,6 +473,8 @@ export function CashierCartPage() {
                     line={line}
                     onQuantityChange={updateQuantity}
                     onRemove={removeLine}
+                    canOverridePrice={canOverridePrice}
+                    onOverridePrice={openOverrideModal}
                   />
                 ))}
               </ul>
@@ -313,6 +510,30 @@ export function CashierCartPage() {
                 />
               )}
             </div>
+
+            {canRecordDebt && (
+              <div className="mt-2 space-y-2">
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={isDebt}
+                    onChange={(e) => setIsDebt(e.target.checked)}
+                    className="h-3.5 w-3.5 accent-amber-400"
+                  />
+                  <HandCoins size={13} className="text-amber-400" />
+                  Record as debt (deferred payment)
+                </label>
+                {isDebt && (
+                  <input
+                    type="text"
+                    value={debtorNickname}
+                    onChange={(e) => setDebtorNickname(e.target.value)}
+                    placeholder="Debtor nickname (e.g. Abu Ahmad)"
+                    className="w-full rounded-xl border border-amber-500/30 bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white placeholder-slate-500 outline-none transition focus:border-amber-400"
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           <div className="space-y-1.5 border-t border-slate-800/80 bg-slate-950/80 p-4 text-xs shrink-0">
@@ -341,16 +562,192 @@ export function CashierCartPage() {
                 Invoice saved #{lastInvoiceNumber}
               </p>
             )}
-            <button
-              type="button"
-              onClick={openCheckout}
-              className="w-full rounded-xl bg-amber-400 py-2.5 text-sm font-bold text-black transition hover:bg-amber-300 active:scale-95 shadow-lg shadow-amber-400/10"
-            >
-              Pay
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleHold}
+                disabled={cart.length === 0}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-xs font-bold text-slate-300 transition hover:border-amber-400/50 hover:text-amber-300 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
+                title="Hold this invoice and start a new one"
+              >
+                <PauseCircle size={15} />
+                Hold
+              </button>
+              {isDebt ? (
+                <button
+                  type="button"
+                  onClick={handleRecordDebt}
+                  disabled={status === "loading"}
+                  className="flex-1 rounded-xl bg-amber-400 py-2.5 text-sm font-bold text-black transition hover:bg-amber-300 active:scale-95 shadow-lg shadow-amber-400/10 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {status === "loading" ? "Saving..." : "Record debt & print"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openCheckout}
+                  className="flex-1 rounded-xl bg-amber-400 py-2.5 text-sm font-bold text-black transition hover:bg-amber-300 active:scale-95 shadow-lg shadow-amber-400/10"
+                >
+                  Pay
+                </button>
+              )}
+            </div>
           </div>
         </aside>
       </div>
+
+      {showHeldPanel && (
+        <div className="fixed inset-0 z-[60] flex justify-end bg-black/60 backdrop-blur-sm" dir="ltr">
+          <div className="flex h-full w-96 flex-col border-l border-amber-500/20 bg-slate-950 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800/80 px-4 py-3.5">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Parked carts</p>
+                <h3 className="text-sm font-extrabold text-white">Held invoices</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHeldPanel(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-slate-300 transition hover:border-amber-400/50 hover:text-amber-400"
+                aria-label="Close"
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-3">
+              {heldInvoices.length === 0 ? (
+                <div className="flex h-full items-center justify-center p-6 text-center text-xs font-medium text-slate-400">
+                  No held invoices right now.
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {heldInvoices.map((held) => {
+                    const heldItemCount = held.cart.reduce((sum, l) => sum + l.quantity, 0);
+                    const heldTotal = held.cart.reduce(
+                      (sum, l) => sum + effectiveUnitPrice(l) * l.quantity,
+                      0
+                    );
+                    return (
+                      <li
+                        key={held.id}
+                        className="rounded-xl border border-slate-800 bg-slate-900/60 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-xs font-bold text-slate-100">{held.label}</p>
+                            <p className="mt-0.5 text-[10px] font-medium text-slate-400">
+                              {new Date(held.heldAt).toLocaleTimeString("en-GB")} ·{" "}
+                              {heldItemCount} item{heldItemCount === 1 ? "" : "s"}
+                              {held.isDebt && (
+                                <span className="mr-1 text-amber-400"> · debt: {held.debtorNickname || "—"}</span>
+                              )}
+                            </p>
+                          </div>
+                          <span className="font-mono text-xs font-extrabold text-amber-400">
+                            {heldTotal.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="mt-2.5 flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleResume(held)}
+                            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-400 py-1.5 text-[11px] font-bold text-black transition hover:bg-amber-300 active:scale-95"
+                          >
+                            <PlayCircle size={13} />
+                            Resume
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteHeld(held.id)}
+                            className="flex items-center justify-center rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 text-red-400 transition hover:bg-red-500/20"
+                            aria-label="Delete held invoice"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {overrideModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm" dir="ltr">
+          <div className="w-80 rounded-2xl border border-amber-500/20 bg-slate-950 p-4 shadow-2xl">
+            <div className="mb-3 flex items-center gap-2">
+              <Tag size={15} className="text-amber-400" />
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Price override</p>
+                <p className="text-xs font-bold text-slate-100 line-clamp-1">{overrideModal.productName}</p>
+              </div>
+            </div>
+
+            <p className="mb-1 text-[10px] font-medium text-slate-400">
+              Catalog price: <span className="font-mono text-slate-300">{overrideModal.catalogPrice.toFixed(2)}</span>
+            </p>
+
+            <label className="mt-2 block text-[10px] font-bold uppercase tracking-wide text-slate-400">
+              New unit price
+            </label>
+            <input
+              type="text"
+              inputMode="decimal"
+              autoFocus
+              value={overrideModal.price}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d*\.?\d*$/.test(value)) {
+                  setOverrideModal({ ...overrideModal, price: value });
+                }
+              }}
+              placeholder={overrideModal.catalogPrice.toFixed(2)}
+              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 font-mono text-sm text-white outline-none transition focus:border-amber-400"
+            />
+
+            <label className="mt-3 block text-[10px] font-bold uppercase tracking-wide text-slate-400">
+              Reason (optional)
+            </label>
+            <input
+              type="text"
+              value={overrideModal.reason}
+              onChange={(e) => setOverrideModal({ ...overrideModal, reason: e.target.value })}
+              placeholder="e.g. damaged box, loyal customer"
+              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-500 outline-none transition focus:border-amber-400"
+            />
+
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setOverrideModal(null)}
+                className="flex-1 rounded-xl border border-slate-700 bg-slate-900 py-2 text-xs font-bold text-slate-300 transition hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              {overrideModal.price !== "" || cart.find((l) => l.product.id === overrideModal.productId)?.overridePrice != null ? (
+                <button
+                  type="button"
+                  onClick={clearOverride}
+                  className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-400 transition hover:bg-red-500/20"
+                >
+                  Reset
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={saveOverride}
+                disabled={overrideModal.price.trim() === ""}
+                className="flex-1 rounded-xl bg-amber-400 py-2 text-xs font-bold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showCheckout && (
         <CheckoutScreen
@@ -421,6 +818,16 @@ export function CashierCartPage() {
             <span>Total</span>
             <span>{receipt.total.toFixed(2)} JOD</span>
           </div>
+
+          {receipt.isDebt && (
+            <>
+              <div className="receipt-divider" />
+              <div className="receipt-summary-line">
+                <span>DEFERRED PAYMENT (DEBT)</span>
+                <span>{receipt.debtorNickname}</span>
+              </div>
+            </>
+          )}
 
           <div className="receipt-divider" />
 

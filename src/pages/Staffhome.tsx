@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Boxes, Clock3, PackagePlus, ShoppingCart, LogOut, User, Store, Tag } from "lucide-react";
+import { Boxes, Clock3, History, PackagePlus, ShoppingCart, LogOut, User, Store, Tag, HandCoins } from "lucide-react";
 import { getCurrentUser, logout } from "../api/authApi";
 import { LowStockWidget } from "../features/products/LowStockWidget";
 import { ThemeToggle } from "../components/ThemeToggle";
@@ -45,6 +45,20 @@ export default function StaffHome() {
       label: "Shift management",
       description: "Register start/end of shift and review previous shifts",
       icon: Clock3,
+    },
+    permissions.includes("record_debt") && {
+      to: "/debts",
+      label: "Debt notebook",
+      description: "See who owes what and mark debts as paid",
+      icon: HandCoins,
+    },
+    {
+      to: "/invoices",
+      label: permissions.includes("view_all_invoices") ? "Invoice history" : "My invoices",
+      description: permissions.includes("view_all_invoices")
+        ? "Browse every invoice created by any cashier"
+        : "Browse the invoices you created and view their items",
+      icon: History,
     },
   ].filter(Boolean) as ActionCard[];
 

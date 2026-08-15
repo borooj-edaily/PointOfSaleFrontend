@@ -5,6 +5,8 @@ export interface InvoiceItemRequest {
   productId: number;
   unitSold: UnitSold;
   quantity: number;
+  overridePrice?: number | null;
+  overrideReason?: string | null;
 }
 
 export interface FinalizeInvoiceRequest {
@@ -12,6 +14,8 @@ export interface FinalizeInvoiceRequest {
   items: InvoiceItemRequest[];
   discountType: DiscountType | null;
   discountValue: number | null;
+  isDebt?: boolean;
+  debtorNickname?: string | null;
 }
 
 export interface FinalizeInvoiceResponse {
@@ -21,6 +25,8 @@ export interface FinalizeInvoiceResponse {
   discountAmount: number;
   total: number;
   createdAt: string;
+  isDebt: boolean;
+  debtorNickname: string | null;
 }
 
 export interface InvoiceItemDto {
@@ -32,6 +38,8 @@ export interface InvoiceItemDto {
   lineTotal: number;
   alreadyReturnedQuantity: number;
   returnableQuantity: number;
+  originalUnitPrice: number | null;
+  priceOverrideReason: string | null;
 }
 
 export interface GetInvoiceByNumberResponse {
@@ -43,6 +51,9 @@ export interface GetInvoiceByNumberResponse {
   total: number;
   createdAt: string;
   items: InvoiceItemDto[];
+  isDebt: boolean;
+  debtorNickname: string | null;
+  debtPaidAt: string | null;
 }
 
 export interface ReturnInvoiceItemRequest {

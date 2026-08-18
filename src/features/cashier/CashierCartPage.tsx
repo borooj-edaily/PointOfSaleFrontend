@@ -724,6 +724,7 @@ export function CashierCartPage() {
                               <li key={c.id}>
                                 <button
                                   type="button"
+                                  onMouseDown={(e) => e.preventDefault()}
                                   onClick={() => selectCustomer(c)}
                                   className="flex w-full items-center justify-between px-3 py-2 text-left text-xs text-slate-200 transition hover:bg-slate-800"
                                 >
@@ -742,6 +743,7 @@ export function CashierCartPage() {
                         )}
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={openNewCustomerModal}
                           className="flex w-full items-center gap-1.5 border-t border-slate-800 px-3 py-2 text-left text-[11px] font-bold text-amber-400 transition hover:bg-slate-800"
                         >

@@ -5,6 +5,8 @@ export interface DebtListItem {
   invoiceId: number;
   invoiceNumber: number;
   debtorNickname: string;
+  customerId: number | null;
+  customerPhone: string | null;
   cashierId: number;
   cashierName: string;
   total: number;

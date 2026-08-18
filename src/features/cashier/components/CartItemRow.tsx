@@ -3,6 +3,10 @@ import type { Product } from "../../../types/catalog";
 import type { UnitSold } from "../../../types/invoice";
 
 export interface CartLine {
+  // Stable id for this cart row — independent from the product id, because
+  // Price Override (partial quantity) can split one product into two rows
+  // (e.g. 3 pieces at catalog price + 2 pieces at an overridden price).
+  lineId: string;
   product: Product;
   unitSold: UnitSold;
   quantity: number;
@@ -14,10 +18,10 @@ export interface CartLine {
 
 interface Props {
   line: CartLine;
-  onQuantityChange: (productId: number, quantity: number) => void;
-  onRemove: (productId: number) => void;
+  onQuantityChange: (lineId: string, quantity: number) => void;
+  onRemove: (lineId: string) => void;
   canOverridePrice?: boolean;
-  onOverridePrice?: (productId: number) => void;
+  onOverridePrice?: (lineId: string) => void;
 }
 
 function catalogPrice(line: CartLine): number {
@@ -50,7 +54,7 @@ export function CartItemRow({
         <p className="text-xs font-semibold leading-tight text-slate-100 line-clamp-1">{line.product.name}</p>
         <button
           type="button"
-          onClick={() => onRemove(line.product.id)}
+          onClick={() => onRemove(line.lineId)}
           className="shrink-0 text-slate-500 transition hover:text-red-400"
           aria-label="Remove item"
         >
@@ -62,7 +66,7 @@ export function CartItemRow({
         <div className="flex items-center gap-1.5">
           <button
             type="button"
-            onClick={() => onQuantityChange(line.product.id, line.quantity - 1)}
+            onClick={() => onQuantityChange(line.lineId, line.quantity - 1)}
             disabled={line.quantity <= 1}
             className="flex h-5 w-5 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 transition hover:border-amber-400/40 hover:text-white disabled:opacity-30"
             aria-label="Decrease quantity"
@@ -74,7 +78,7 @@ export function CartItemRow({
           </span>
           <button
             type="button"
-            onClick={() => onQuantityChange(line.product.id, line.quantity + 1)}
+            onClick={() => onQuantityChange(line.lineId, line.quantity + 1)}
             className="flex h-5 w-5 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 transition hover:border-amber-400/40 hover:text-white"
             aria-label="Increase quantity"
           >
@@ -85,7 +89,7 @@ export function CartItemRow({
           {canOverridePrice && (
             <button
               type="button"
-              onClick={() => onOverridePrice?.(line.product.id)}
+              onClick={() => onOverridePrice?.(line.lineId)}
               className={`flex h-5 w-5 items-center justify-center rounded-lg border transition ${
                 isOverridden
                   ? "border-amber-400/60 bg-amber-400/10 text-amber-300"

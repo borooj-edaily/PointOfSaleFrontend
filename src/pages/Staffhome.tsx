@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Boxes, Clock3, History, PackagePlus, ShoppingCart, LogOut, User, Store, Tag, HandCoins } from "lucide-react";
+import { Boxes, Clock3, History, PackagePlus, ShoppingCart, LogOut, User, Store, Tag, HandCoins, Users } from "lucide-react";
 import { getCurrentUser, logout } from "../api/authApi";
 import { LowStockWidget } from "../features/products/LowStockWidget";
 import { ThemeToggle } from "../components/ThemeToggle";
@@ -51,6 +51,12 @@ export default function StaffHome() {
       label: "Debt notebook",
       description: "See who owes what and mark debts as paid",
       icon: HandCoins,
+    },
+    permissions.includes("record_debt") && {
+      to: "/customers",
+      label: "Customers",
+      description: "Manage customer files and their debt history",
+      icon: Users,
     },
     {
       to: "/invoices",

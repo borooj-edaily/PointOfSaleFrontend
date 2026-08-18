@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, HandCoins, RefreshCw, Search, CheckCircle2, Clock } from "lucide-react";
+import { ArrowRight, HandCoins, RefreshCw, Search, CheckCircle2, Clock, Users } from "lucide-react";
 import { listDebts, payDebt, type DebtListItem } from "../api/debtsApi";
 import { ApiError } from "../api/httpClient";
 
@@ -53,7 +53,7 @@ export default function DebtsPage() {
       <main className="mx-auto max-w-5xl">
         <header className="pos-panel mb-6 flex flex-wrap items-center justify-between gap-4 p-6">
           <div className="flex items-center gap-3">
-            <Link to="/home" className="pos-icon-button" aria-label="Back">
+<Link to="/cashier" className="pos-icon-button" aria-label="Back">
               <ArrowRight size={20} />
             </Link>
             <div>
@@ -63,6 +63,12 @@ export default function DebtsPage() {
           </div>
           <HandCoins className="text-amber-400" size={30} />
         </header>
+
+        <div className="mb-6 flex justify-end">
+          <Link to="/customers" className="pos-secondary">
+            <Users size={15} /> Manage customers
+          </Link>
+        </div>
 
         {error && <p className="pos-error mb-5">{error}</p>}
         {success && <p className="pos-success mb-5">{success}</p>}
@@ -138,7 +144,21 @@ export default function DebtsPage() {
                   {items.map((item) => (
                     <tr key={item.invoiceId} className="border-b border-white/10 text-slate-200">
                       <td className="p-3 font-mono">#{item.invoiceNumber}</td>
-                      <td className="p-3 font-semibold">{item.debtorNickname || "—"}</td>
+                      <td className="p-3">
+                        {item.customerId ? (
+                          <Link
+                            to={`/customers/${item.customerId}`}
+                            className="font-semibold text-amber-300 hover:underline"
+                          >
+                            {item.debtorNickname || "—"}
+                          </Link>
+                        ) : (
+                          <span className="font-semibold">{item.debtorNickname || "—"}</span>
+                        )}
+                        {item.customerPhone && (
+                          <div className="text-[10px] font-mono text-slate-500">{item.customerPhone}</div>
+                        )}
+                      </td>
                       <td className="p-3 text-xs text-slate-400">{item.cashierName}</td>
                       <td className="p-3 font-mono font-bold text-amber-400">{item.total.toFixed(2)}</td>
                       <td className="p-3 text-xs text-slate-400">

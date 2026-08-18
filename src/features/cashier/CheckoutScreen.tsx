@@ -131,7 +131,7 @@ export function CheckoutScreen({
 
         <ul className="flex-1 divide-y divide-slate-800/60 overflow-y-auto bg-slate-950/30">
           {lines.map((line) => (
-            <li key={line.product.id} className="flex items-start justify-between gap-2 px-4 py-3 transition hover:bg-slate-900/40">
+            <li key={line.lineId} className="flex items-start justify-between gap-2 px-4 py-3 transition hover:bg-slate-900/40">
               <div className="flex items-start gap-2.5">
                 <span className="mt-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 px-1 font-mono text-xs font-bold text-amber-300">
                   {line.quantity}

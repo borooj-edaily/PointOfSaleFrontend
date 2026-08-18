@@ -179,8 +179,16 @@ const router = createBrowserRouter([
       </PermissionRoute>
     ),
   },
-  {
+{
     path: "/customers",
+    element: (
+      <PermissionRoute permission="record_debt">
+        <CustomersPage />
+      </PermissionRoute>
+    ),
+  },
+  {
+    path: "/customers/:id",
     element: (
       <PermissionRoute permission="record_debt">
         <CustomersPage />

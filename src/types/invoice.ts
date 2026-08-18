@@ -15,6 +15,7 @@ export interface FinalizeInvoiceRequest {
   discountType: DiscountType | null;
   discountValue: number | null;
   isDebt?: boolean;
+  customerId?: number | null;
   debtorNickname?: string | null;
 }
 
@@ -26,6 +27,7 @@ export interface FinalizeInvoiceResponse {
   total: number;
   createdAt: string;
   isDebt: boolean;
+  customerId: number | null;
   debtorNickname: string | null;
 }
 

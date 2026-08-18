@@ -9,6 +9,8 @@ export interface HeldInvoice {
   discountType: DiscountType | "";
   discountValue: string;
   isDebt: boolean;
+  customerId: number | null;
+  customerName: string;
   debtorNickname: string;
 }
 
@@ -25,7 +27,20 @@ export function getHeldInvoices(cashierId: number): HeldInvoice[] {
     const raw = localStorage.getItem(storageKey(cashierId));
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    // Backward compat: invoices held before Price Override (partial quantity)
+    // shipped won't have a lineId on their cart rows yet — backfill one so
+    // they can still be resumed without crashing. Same for invoices held
+    // before the Dept Notebook customer registry (v2) shipped — they only
+    // ever had a nickname, so default the new customer fields.
+    return parsed.map((held: HeldInvoice) => ({
+      ...held,
+      customerId: held.customerId ?? null,
+      customerName: held.customerName ?? "",
+      cart: held.cart.map((line) =>
+        line.lineId ? line : { ...line, lineId: `line_legacy_${line.product.id}` }
+      ),
+    }));
   } catch {
     // Corrupt/unavailable storage should never crash the cashier screen.
     return [];
@@ -55,6 +70,8 @@ export function holdInvoice(
     discountType: entry.discountType,
     discountValue: entry.discountValue,
     isDebt: entry.isDebt,
+    customerId: entry.customerId,
+    customerName: entry.customerName,
     debtorNickname: entry.debtorNickname,
   };
 

@@ -19,6 +19,7 @@ import ShiftManagementPage from "../pages/ShiftManagementPage";
 import InvoiceHistoryPage from "../pages/Invoicehistorypage";
 import ReportsPage from "../pages/ReportsPage";
 import DebtsPage from "../pages/DebtsPage";
+import CustomersPage from "../pages/CustomersPage";
 
 const router = createBrowserRouter([
   {
@@ -175,6 +176,14 @@ const router = createBrowserRouter([
     element: (
       <PermissionRoute permission="record_debt">
         <DebtsPage />
+      </PermissionRoute>
+    ),
+  },
+  {
+    path: "/customers",
+    element: (
+      <PermissionRoute permission="record_debt">
+        <CustomersPage />
       </PermissionRoute>
     ),
   },

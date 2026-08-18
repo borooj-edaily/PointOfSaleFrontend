@@ -105,7 +105,13 @@ export default function ProductManagementPage() {
       <main className="w-full max-w-[1800px]">
         <header className="pos-panel mb-8 flex flex-wrap items-center justify-between gap-4 p-8">
           <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="pos-icon-button" aria-label="Back"><ArrowRight size={22} /></Link>
+            <Link
+              to={user?.role === "Admin" ? "/dashboard" : "/home"}
+              className="pos-icon-button"
+              aria-label="Back"
+            >
+              <ArrowRight size={22} />
+            </Link>
             <div>
               <p className="pos-kicker">AL-ISRAA Supermarket</p>
               <h1 className="text-3xl font-black text-white">{pageTitle}</h1>

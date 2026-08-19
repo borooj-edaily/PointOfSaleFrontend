@@ -6,7 +6,7 @@ import { checkIn, checkOut, getCurrentShift, getMyShifts, getShiftReport, type S
 
 const dateValue = (offset = 0) => { const value = new Date(); value.setDate(value.getDate() + offset); return value.toISOString().slice(0, 10); };
 const asIso = (value: string) => value ? new Date(`${value}T00:00:00`).toISOString() : undefined;
-
+<div className="shift-management-page"></div>
 export default function ShiftManagementPage() {
   const [current, setCurrent] = useState<ShiftDto | null>(null); const [history, setHistory] = useState<ShiftDto[]>([]); const [report, setReport] = useState<ShiftReportResponse | null>(null); const [from, setFrom] = useState(dateValue(-30)); const [to, setTo] = useState(dateValue()); const [loading, setLoading] = useState(true); const [working, setWorking] = useState(false); const [error, setError] = useState(""); const [success, setSuccess] = useState("");
   async function load() { setLoading(true); setError(""); try { const range = { from: asIso(from), to: asIso(to) }; const [mine, shiftReport] = await Promise.all([getMyShifts(range), getShiftReport(range)]); setHistory(mine); setReport(shiftReport); try { setCurrent(await getCurrentShift()); } catch { setCurrent(null); } } catch (err) { setError(err instanceof Error ? err.message : "Could not load shifts."); } finally { setLoading(false); } }

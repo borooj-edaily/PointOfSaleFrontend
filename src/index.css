@@ -1,126 +1,1201 @@
-@import "tailwindcss";
+@import "tailwindcss";  
+  
+/* =========================================================  
+   RESET  
+   ========================================================= */  
+  
+* {  
+  margin: 0;  
+  padding: 0;  
+  box-sizing: border-box;  
+}  
+  
+html,  
+body,  
+#root {  
+  width: 100%;  
+  min-width: 100%;  
+  min-height: 100vh;  
+  margin: 0;  
+  padding: 0;  
+}  
+  
+  
+/* =========================================================  
+   ROOT VARIABLES — DARK MODE  
+   ========================================================= */  
+  
+:root,  
+[data-theme="dark"] {  
+  /* =======================================================  
+     PAGE  
+     ======================================================= */  
+  
+  --pos-body-bg: #020617;  
+  
+  --pos-bg-overlay:  
+    linear-gradient(  
+      to bottom,  
+      rgba(15, 23, 42, 0.72),  
+      rgba(15, 23, 42, 0.86)  
+    );  
+  
+  
+  /* =======================================================  
+     PANELS  
+     ======================================================= */  
+  
+  --pos-panel-border: rgba(255, 255, 255, 0.18);  
+  
+  --pos-panel-bg: rgba(0, 0, 0, 0.58);  
+  
+  --pos-panel-shadow:  
+    rgba(0, 0, 0, 0.4);  
+  
+  
+  /* =======================================================  
+     TEXT  
+     ======================================================= */  
+  
+  --pos-kicker-color: #fbbf24;  
+  
+  --pos-label-color: #e2e8f0;  
+  
+  --pos-muted-color: #cbd5e1;  
+  
+  
+  /* =======================================================  
+     INPUTS  
+     ======================================================= */  
+  
+  --pos-input-border: rgba(255, 255, 255, 0.2);  
+  
+  --pos-input-bg: rgba(15, 23, 42, 0.78);  
+  
+  --pos-input-text: #ffffff;  
+  
+  
+  /* =======================================================  
+     PRIMARY  
+     ======================================================= */  
+  
+  --pos-primary-bg: #fbbf24;  
+  
+  --pos-primary-bg-hover: #fcd34d;  
+  
+  --pos-primary-text: #0f172a;  
+  
+  
+  /* =======================================================  
+     SECONDARY  
+     ======================================================= */  
+  
+  --pos-secondary-border: rgba(255, 255, 255, 0.2);  
+  
+  --pos-secondary-bg: rgba(255, 255, 255, 0.1);  
+  
+  --pos-secondary-bg-hover: rgba(255, 255, 255, 0.18);  
+  
+  --pos-secondary-text: #ffffff;  
+  
+  
+  /* =======================================================  
+     DANGER  
+     ======================================================= */  
+  
+  --pos-danger-border: rgba(248, 113, 113, 0.4);  
+  
+  --pos-danger-bg: rgba(220, 38, 38, 0.88);  
+  
+  --pos-danger-bg-hover: #dc2626;  
+  
+  --pos-danger-text: #ffffff;  
+  
+  
+  /* =======================================================  
+     ICONS  
+     ======================================================= */  
+  
+  --pos-icon-color: #fbbf24;  
+  
+  --pos-icon-border: rgba(255, 255, 255, 0.18);  
+  
+  --pos-icon-bg: rgba(255, 255, 255, 0.08);  
+  
+  
+  /* =======================================================  
+     ERROR  
+     ======================================================= */  
+  
+  --pos-error-border: rgba(248, 113, 113, 0.4);  
+  
+  --pos-error-bg: rgba(127, 29, 29, 0.65);  
+  
+  --pos-error-text: #fecaca;  
+  
+  
+  /* =======================================================  
+     SUCCESS  
+     ======================================================= */  
+  
+  --pos-success-border: rgba(74, 222, 128, 0.4);  
+  
+  --pos-success-bg: rgba(20, 83, 45, 0.65);  
+  
+  --pos-success-text: #bbf7d0;  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE  
+   ========================================================= */  
+  
+[data-theme="light"] {  
+  /* =======================================================  
+     PAGE  
+     ======================================================= */  
+  
+  --pos-body-bg: #ffffff;  
+  
+  --pos-bg-overlay:  
+    linear-gradient(  
+      to bottom,  
+      rgba(255, 255, 255, 0.12),  
+      rgba(255, 255, 255, 0.18)  
+    );  
+  
+  
+  /* =======================================================  
+     PANELS — GLASS  
+     ======================================================= */  
+  
+  --pos-panel-border: rgba(255, 255, 255, 0.65);  
+  
+  --pos-panel-bg: rgba(255, 255, 255, 0.32);  
+  
+  --pos-panel-shadow:  
+    rgba(0, 0, 0, 0.12);  
+  
+  
+  /* =======================================================  
+     TEXT  
+     ======================================================= */  
+  
+  --pos-kicker-color: #b45309;  
+  
+  --pos-label-color: #0f172a;  
+  
+  --pos-muted-color: #475569;  
+  
+  
+  /* =======================================================  
+     INPUTS  
+     ======================================================= */  
+  
+  --pos-input-border: #a3a3a3;  
+  
+  --pos-input-bg: rgba(255, 255, 255, 0.82);  
+  
+  --pos-input-text: #0f172a;  
+  
+  
+  /* =======================================================  
+     PRIMARY  
+     ======================================================= */  
+  
+  --pos-primary-bg: #f59e0b;  
+  
+  --pos-primary-bg-hover: #d97706;  
+  
+  --pos-primary-text: #000000;  
+  
+  
+  /* =======================================================  
+     SECONDARY  
+     ======================================================= */  
+  
+  --pos-secondary-border: #a3a3a3;  
+  
+  --pos-secondary-bg: rgba(255, 255, 255, 0.72);  
+  
+  --pos-secondary-bg-hover: rgba(255, 255, 255, 0.9);  
+  
+  --pos-secondary-text: #0f172a;  
+  
+  
+  /* =======================================================  
+     DANGER  
+     ======================================================= */  
+  
+  --pos-danger-border: #ef4444;  
+  
+  --pos-danger-bg: #dc2626;  
+  
+  --pos-danger-bg-hover: #b91c1c;  
+  
+  --pos-danger-text: #ffffff;  
+  
+  
+  /* =======================================================  
+     ICONS  
+     ======================================================= */  
+  
+  --pos-icon-color: #0f172a;  
+  
+  --pos-icon-border: #a3a3a3;  
+  
+  --pos-icon-bg: rgba(255, 255, 255, 0.72);  
+  
+  
+  /* =======================================================  
+     ERROR  
+     ======================================================= */  
+  
+  --pos-error-border: #ef4444;  
+  
+  --pos-error-bg: rgba(254, 242, 242, 0.9);  
+  
+  --pos-error-text: #991b1b;  
+  
+  
+  /* =======================================================  
+     SUCCESS  
+     ======================================================= */  
+  
+  --pos-success-border: #22c55e;  
+  
+  --pos-success-bg: rgba(240, 253, 244, 0.9);  
+  
+  --pos-success-text: #15803d;  
+}  
+  
+  
+/* =========================================================  
+   BODY  
+   ========================================================= */  
+  
+body {  
+  font-family: Inter, sans-serif;  
+  
+  color: var(--pos-input-text);  
+  
+  background-color: var(--pos-body-bg);  
+  
+  background-image:  
+    var(--pos-bg-overlay),  
+    url("../src/assets/5bb37fc6-1980-4994-8cad-ebf44634ee4b.png44.png");  
+  
+  background-size: cover;  
+  
+  background-position: center;  
+  
+  background-attachment: fixed;  
+  
+  background-repeat: no-repeat;  
+  
+  transition:  
+    background-color 0.2s ease,  
+    color 0.2s ease;  
+}  
+  
+  
+/* =========================================================  
+   ROOT  
+   ========================================================= */  
+  
+#root {  
+  width: 100%;  
+  min-width: 100%;  
+  min-height: 100vh;  
+  
+  background: transparent;  
+}  
+  
+  
+/* =========================================================  
+   POS PAGE  
+   ========================================================= */  
+  
+.pos-page {  
+  width: 100% !important;  
+  
+  min-width: 100% !important;  
+  
+  min-height: 100vh !important;  
+  
+  max-width: none !important;  
+  
+  margin: 0 !important;  
+  
+  padding: 0 !important;  
+  
+  overflow-x: hidden;  
+  
+  background-image:  
+    var(--pos-bg-overlay),  
+    url("../src/assets/5bb37fc6-1980-4994-8cad-ebf44634ee4b.png44.png");  
+  
+  background-size: cover;  
+  
+  background-position: center;  
+  
+  background-attachment: fixed;  
+  
+  background-repeat: no-repeat;  
+  
+  background-color: var(--pos-body-bg);  
+  
+  transition:  
+    background-color 0.2s ease;  
+}  
+  
+  
+/* =========================================================  
+   FULL WIDTH — MAIN PAGE ELEMENTS  
+   ========================================================= */  
+  
+.pos-page > div,  
+.pos-page > main,  
+.pos-page > section,  
+.pos-page > article,  
+.pos-page > aside,  
+  
+.pos-page main,  
+.pos-page section,  
+.pos-page article,  
+.pos-page aside,  
+.pos-page header,  
+.pos-page nav,  
+.pos-page footer {  
+  width: 100%;  
+  max-width: none;  
+}  
+  
+  
+/* =========================================================  
+   REMOVE TAILWIND MAX-WIDTH  
+   ========================================================= */  
+  
+.pos-page [class*="max-w-"] {  
+  max-width: none !important;  
+}  
+  
+  
+/* =========================================================  
+   REMOVE AUTO CENTERING  
+   ========================================================= */  
+  
+.pos-page .mx-auto {  
+  margin-left: 0 !important;  
+  margin-right: 0 !important;  
+}  
+  
+  
+/* =========================================================  
+   CONTAINER — FULL WIDTH  
+   ========================================================= */  
+  
+.pos-page .container {  
+  width: 100% !important;  
+  
+  max-width: none !important;  
+  
+  margin-left: 0 !important;  
+  
+  margin-right: 0 !important;  
+}  
+  
+  
+/* =========================================================  
+   WIDTH UTILITIES  
+   ========================================================= */  
+  
+.pos-page .w-full {  
+  width: 100% !important;  
+}  
+  
+.pos-page .w-screen {  
+  width: 100vw !important;  
+  
+  max-width: 100vw !important;  
+}  
+  
+  
+/* =========================================================  
+   PANELS / GLASS CARDS  
+   ========================================================= */  
+  
+.pos-panel {  
+  width: 100%;  
+  
+  border: 1px solid var(--pos-panel-border);  
+  
+  border-radius: 1.5rem;  
+  
+  background: var(--pos-panel-bg);  
+  
+  box-shadow:  
+    0 20px 45px var(--pos-panel-shadow);  
+  
+  backdrop-filter: blur(18px);  
+  
+  -webkit-backdrop-filter: blur(18px);  
+  
+  transition:  
+    background 0.2s ease,  
+    border-color 0.2s ease;  
+}  
+  
+  
+/* =========================================================  
+   SERVICE CARDS  
+   ========================================================= */  
+  
+.service-card {  
+  background: rgba(255, 255, 255, 0.25);  
+  
+  border: 1px solid rgba(255, 255, 255, 0.6);  
+  
+  backdrop-filter: blur(10px);  
+  
+  -webkit-backdrop-filter: blur(10px);  
+  
+  box-shadow:  
+    0 12px 35px rgba(0, 0, 0, 0.12);  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — PANELS  
+   ========================================================= */  
+  
+html[data-theme="light"] .pos-panel,  
+html[data-theme="light"] .service-card {  
+  background: rgba(255, 255, 255, 0.32) !important;  
+  
+  border: 1px solid rgba(255, 255, 255, 0.68) !important;  
+  
+  box-shadow:  
+    0 12px 35px rgba(0, 0, 0, 0.12) !important;  
+  
+  backdrop-filter: blur(12px) !important;  
+  
+  -webkit-backdrop-filter: blur(12px) !important;  
+}  
+  
+  
+/* =========================================================  
+   DARK MODE — PANELS  
+   ========================================================= */  
+  
+html[data-theme="dark"] .pos-panel,  
+html[data-theme="dark"] .service-card {  
+  background: rgba(0, 0, 0, 0.58) !important;  
+  
+  border-color: rgba(255, 255, 255, 0.18) !important;  
+  
+  backdrop-filter: blur(18px);  
+  
+  -webkit-backdrop-filter: blur(18px);  
+}  
+  
+  
+/* =========================================================  
+   TEXT  
+   ========================================================= */  
+  
+.pos-kicker {  
+  color: var(--pos-kicker-color);  
+  
+  font-size: 0.7rem;  
+  
+  font-weight: 900;  
+  
+  letter-spacing: 0.14em;  
+  
+  text-transform: uppercase;  
+}  
+  
+  
+.pos-label {  
+  display: grid;  
+  
+  gap: 0.4rem;  
+  
+  color: var(--pos-label-color);  
+  
+  font-size: 0.85rem;  
+  
+  font-weight: 700;  
+}  
+  
+  
+.pos-muted {  
+  color: var(--pos-muted-color);  
+  
+  font-size: 0.9rem;  
+}  
+  
+  
+/* =========================================================  
+   INPUTS  
+   ========================================================= */  
+  
+.pos-input {  
+  width: 100%;  
+  
+  border: 1px solid var(--pos-input-border);  
+  
+  border-radius: 0.75rem;  
+  
+  background: var(--pos-input-bg);  
+  
+  padding: 0.7rem 0.8rem;  
+  
+  color: var(--pos-input-text);  
+  
+  outline: none;  
+  
+  transition:  
+    border-color 0.15s ease,  
+    background 0.15s ease;  
+}  
+  
+  
+.pos-input:focus {  
+  border-color: var(--pos-primary-bg);  
+}  
+  
+  
+.pos-input::placeholder {  
+  color: #64748b;  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — INPUTS  
+   ========================================================= */  
+  
+html[data-theme="light"] .pos-input {  
+  background: rgba(255, 255, 255, 0.85) !important;  
+  
+  color: #0f172a !important;  
+  
+  border-color: #a3a3a3 !important;  
+}  
+  
+  
+html[data-theme="light"] .pos-input::placeholder {  
+  color: #64748b !important;  
+}  
+  
+  
+/* =========================================================  
+   BUTTON BASE  
+   ========================================================= */  
+  
+.pos-primary,  
+.pos-secondary,  
+.pos-danger,  
+.pos-table-button,  
+.pos-icon-button {  
+  display: inline-flex;  
+  
+  align-items: center;  
+  
+  justify-content: center;  
+  
+  gap: 0.45rem;  
+  
+  border-radius: 0.75rem;  
+  
+  font-weight: 700;  
+  
+  transition:  
+    background-color 0.15s ease,  
+    color 0.15s ease,  
+    border-color 0.15s ease;  
+  
+  cursor: pointer;  
+}  
+  
+  
+/* =========================================================  
+   PRIMARY BUTTON  
+   ========================================================= */  
+  
+.pos-primary {  
+  background: var(--pos-primary-bg);  
+  
+  color: var(--pos-primary-text);  
+  
+  padding: 0.75rem 1rem;  
+}  
+  
+  
+.pos-primary:hover {  
+  background: var(--pos-primary-bg-hover);  
+}  
+  
+  
+/* =========================================================  
+   LIGHT PRIMARY — BLACK TEXT + ICON  
+   ========================================================= */  
+  
+html[data-theme="light"] .pos-primary {  
+  color: #000000 !important;  
+}  
+  
+  
+html[data-theme="light"] .pos-primary svg {  
+  color: #000000 !important;  
+  
+  stroke: #000000 !important;  
+}  
+  
+  
+html[data-theme="light"] .pos-primary:hover {  
+  color: #000000 !important;  
+}  
+  
+  
+html[data-theme="light"] .pos-primary:hover svg {  
+  color: #000000 !important;  
+  
+  stroke: #000000 !important;  
+}  
+  
+  
+/* =========================================================  
+   SECONDARY BUTTON  
+   ========================================================= */  
+  
+.pos-secondary,  
+.pos-table-button {  
+  border: 1px solid var(--pos-secondary-border);  
+  
+  background: var(--pos-secondary-bg);  
+  
+  color: var(--pos-secondary-text);  
+  
+  padding: 0.7rem 0.9rem;  
+}  
+  
+  
+.pos-secondary:hover,  
+.pos-table-button:hover {  
+  background: var(--pos-secondary-bg-hover);  
+}  
+  
+  
+/* =========================================================  
+   LIGHT SECONDARY  
+   ========================================================= */  
+  
+html[data-theme="light"] .pos-secondary,  
+html[data-theme="light"] .pos-table-button {  
+  color: #0f172a !important;  
+}  
+  
+  
+html[data-theme="light"] .pos-secondary svg,  
+html[data-theme="light"] .pos-table-button svg {  
+  color: #0f172a !important;  
+  
+  stroke: #0f172a !important;  
+}  
+  
+  
+/* =========================================================  
+   DANGER BUTTON  
+   ========================================================= */  
+  
+.pos-danger {  
+  border: 1px solid var(--pos-danger-border);  
+  
+  background: var(--pos-danger-bg);  
+  
+  color: var(--pos-danger-text);  
+  
+  padding: 0.7rem 0.9rem;  
+}  
+  
+  
+.pos-danger:hover {  
+  background: var(--pos-danger-bg-hover);  
+}  
+  
+  
+/* =========================================================  
+   ICON BUTTON  
+   ========================================================= */  
+  
+.pos-icon-button {  
+  width: 2.4rem;  
+  
+  height: 2.4rem;  
+  
+  color: var(--pos-icon-color);  
+  
+  border: 1px solid var(--pos-icon-border);  
+  
+  background: var(--pos-icon-bg);  
+}  
+  
+  
+/* =========================================================  
+   ENABLE BUTTON  
+   ========================================================= */  
+  
+.pos-enable-button {  
+  color: #34d399;  
+}  
+  
+  
+.pos-enable-button svg {  
+  color: inherit;  
+}  
+  
+  
+html[data-theme="light"] .pos-enable-button,  
+html[data-theme="light"] .pos-enable-button svg {  
+  color: #059669 !important;  
+}  
+  
+  
+/* =========================================================  
+   ERROR / SUCCESS  
+   ========================================================= */  
+  
+.pos-error,  
+.pos-success {  
+  border-radius: 0.8rem;  
+  
+  padding: 0.85rem 1rem;  
+  
+  font-weight: 700;  
+}  
+  
+  
+.pos-error {  
+  border: 1px solid var(--pos-error-border);  
+  
+  background: var(--pos-error-bg);  
+  
+  color: var(--pos-error-text);  
+}  
+  
+  
+.pos-success {  
+  border: 1px solid var(--pos-success-border);  
+  
+  background: var(--pos-success-bg);  
+  
+  color: var(--pos-success-text);  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — TAILWIND DARK BACKGROUNDS  
+   فقط العناصر التي تستخدم خلفيات Tailwind الداكنة  
+   ========================================================= */  
+  
+html[data-theme="light"] .bg-black,  
+html[data-theme="light"] .bg-black\/5,  
+html[data-theme="light"] .bg-black\/10,  
+html[data-theme="light"] .bg-black\/20,  
+html[data-theme="light"] .bg-black\/30,  
+html[data-theme="light"] .bg-black\/40,  
+html[data-theme="light"] .bg-black\/50,  
+html[data-theme="light"] .bg-black\/60,  
+html[data-theme="light"] .bg-black\/70,  
+html[data-theme="light"] .bg-black\/80,  
+html[data-theme="light"] .bg-black\/90,  
+  
+html[data-theme="light"] .bg-slate-950,  
+html[data-theme="light"] .bg-slate-950\/50,  
+html[data-theme="light"] .bg-slate-950\/70,  
+html[data-theme="light"] .bg-slate-950\/80,  
+html[data-theme="light"] .bg-slate-950\/90,  
+  
+html[data-theme="light"] .bg-slate-900,  
+html[data-theme="light"] .bg-slate-900\/50,  
+html[data-theme="light"] .bg-slate-900\/70,  
+html[data-theme="light"] .bg-slate-900\/80,  
+html[data-theme="light"] .bg-slate-900\/90,  
+  
+html[data-theme="light"] .bg-slate-800,  
+html[data-theme="light"] .bg-slate-800\/50,  
+html[data-theme="light"] .bg-slate-800\/70,  
+html[data-theme="light"] .bg-slate-800\/80,  
+html[data-theme="light"] .bg-slate-800\/90,  
+  
+html[data-theme="light"] .bg-slate-700,  
+html[data-theme="light"] .bg-slate-700\/70,  
+html[data-theme="light"] .bg-slate-700\/80,  
+  
+html[data-theme="light"] .bg-gray-950,  
+html[data-theme="light"] .bg-gray-900,  
+html[data-theme="light"] .bg-gray-800,  
+  
+html[data-theme="light"] .bg-zinc-950,  
+html[data-theme="light"] .bg-zinc-900,  
+  
+html[data-theme="light"] .bg-neutral-950,  
+html[data-theme="light"] .bg-neutral-900 {  
+  background-color: rgba(255, 255, 255, 0.28) !important;  
+  
+  background-image: none !important;  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — WHITE TRANSPARENT BACKGROUNDS  
+   ========================================================= */  
+  
+html[data-theme="light"] .bg-white\/5 {  
+  background-color: rgba(255, 255, 255, 0.35) !important;  
+}  
+  
+  
+html[data-theme="light"] .bg-white\/10 {  
+  background-color: rgba(255, 255, 255, 0.42) !important;  
+}  
+  
+  
+html[data-theme="light"] .bg-white\/20 {  
+  background-color: rgba(255, 255, 255, 0.52) !important;  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — BORDERS  
+   ========================================================= */  
+  
+html[data-theme="light"] .border-white\/10,  
+html[data-theme="light"] .border-white\/15,  
+html[data-theme="light"] .border-white\/20 {  
+  border-color: rgba(148, 163, 184, 0.55) !important;  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — TEXT  
+   ========================================================= */  
+  
+html[data-theme="light"] .text-white,  
+html[data-theme="light"] .text-slate-200,  
+html[data-theme="light"] .text-slate-300,  
+html[data-theme="light"] .text-slate-400,  
+html[data-theme="light"] .text-slate-500 {  
+  color: #0f172a !important;  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — GRADIENTS  
+   لا نلغي الـ gradients بشكل عام  
+   حتى لا نخرب شكل الصفحة  
+   ========================================================= */  
+  
+html[data-theme="light"] [class*="from-slate"],  
+html[data-theme="light"] [class*="from-gray"],  
+html[data-theme="light"] [class*="from-zinc"],  
+html[data-theme="light"] [class*="from-black"] {  
+  background-image: none;  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — YELLOW / AMBER / ORANGE BUTTONS  
+   النص والأيقونات أسود  
+   ========================================================= */  
+  
+html[data-theme="light"] .bg-yellow-300,  
+html[data-theme="light"] .bg-yellow-400,  
+html[data-theme="light"] .bg-yellow-500,  
+  
+html[data-theme="light"] .bg-amber-300,  
+html[data-theme="light"] .bg-amber-400,  
+html[data-theme="light"] .bg-amber-500,  
+  
+html[data-theme="light"] .bg-orange-300,  
+html[data-theme="light"] .bg-orange-400,  
+html[data-theme="light"] .bg-orange-500 {  
+  color: #000000 !important;  
+}  
+  
+  
+html[data-theme="light"] button.bg-yellow-300 *,  
+html[data-theme="light"] button.bg-yellow-400 *,  
+html[data-theme="light"] button.bg-yellow-500 *,  
+  
+html[data-theme="light"] button.bg-amber-300 *,  
+html[data-theme="light"] button.bg-amber-400 *,  
+html[data-theme="light"] button.bg-amber-500 *,  
+  
+html[data-theme="light"] button.bg-orange-300 *,  
+html[data-theme="light"] button.bg-orange-400 *,  
+html[data-theme="light"] button.bg-orange-500 * {  
+  color: #000000 !important;  
+  
+  stroke: #000000 !important;  
+}  
+  
+  
+/* =========================================================  
+   CATEGORY PAGE  
+   ========================================================= */  
+  
+html[data-theme="light"] .categories-page,  
+html[data-theme="light"] .category-page,  
+html[data-theme="light"] .categories-container {  
+  min-height: 100vh !important;  
+  
+  width: 100% !important;  
+  
+  max-width: none !important;  
+  
+  background: transparent !important;  
+  
+  background-image: none !important;  
+}  
+  
+  
+html[data-theme="light"] .categories-page > div,  
+html[data-theme="light"] .category-page > div,  
+html[data-theme="light"] .categories-container > div {  
+  background-color: transparent !important;  
+}  
+  
+  
+/* =========================================================  
+   CATEGORY BANNER  
+   ========================================================= */  
+  
+html[data-theme="light"] .border-amber-400\/30 {  
+  border-color: #d97706 !important;  
+}  
+  
+  
+  
+  
+html[data-theme="light"] .bg-amber-400\/10 {  
+  background-color: rgba(253, 230, 138, 0.75) !important;  
+}  
+  
+  
+/* =========================================================  
+   STATUS BADGES  
+   ========================================================= */  
+  
+html[data-theme="light"] .bg-emerald-500\/20 {  
+  background-color: #bbf7d0 !important;  
+}  
+  
+  
+html[data-theme="light"] .bg-red-500\/20 {  
+  background-color: #fecaca !important;  
+}  
+  
+  
+/* =========================================================  
+   TABLES  
+   ========================================================= */  
+  
+html[data-theme="light"] table {  
+  width: 100%;  
+}  
+  
+  
+html[data-theme="light"] table thead tr,  
+html[data-theme="light"] table tbody tr {  
+  border-color: #a1acbb !important;  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — TAILWIND WHITE CARDS  
+   نخليها Glass بدل أبيض مصمت  
+   ========================================================= */  
+  
+html[data-theme="light"] .pos-page [class*="bg-white"] {  
+  background-color: rgba(255, 255, 255, 0.30) !important;  
+  
+  background-image: none !important;  
+  
+  backdrop-filter: blur(10px);  
+  
+  -webkit-backdrop-filter: blur(10px);  
+}  
+  
+  
+/* =========================================================  
+   EXCEPTION — INPUTS / SELECTS / TEXTAREAS  
+   لازم تظل واضحة  
+   ========================================================= */  
+  
+html[data-theme="light"] .pos-page input,  
+html[data-theme="light"] .pos-page select,  
+html[data-theme="light"] .pos-page textarea {  
+  background-color: rgba(255, 255, 255, 0.86) !important;  
+  
+  color: #0f172a !important;  
+}  
+  
+  
+/* =========================================================  
+   LIGHT MODE — PAGE INTERNAL WRAPPERS  
+   لا نخلي wrapper داخلي يغطي صورة الخلفية  
+   ========================================================= */  
+  
+html[data-theme="light"] .pos-page > div,  
+html[data-theme="light"] .pos-page > main,  
+html[data-theme="light"] .pos-page > section,  
+html[data-theme="light"] .pos-page > article,  
+html[data-theme="light"] .pos-page > aside {  
+  background-color: transparent;  
+}  
+  
+  
+/* =========================================================  
+   DARK MODE — PAGE INTERNAL WRAPPERS  
+   ========================================================= */  
+  
+html[data-theme="dark"] .pos-page > div,  
+html[data-theme="dark"] .pos-page > main,  
+html[data-theme="dark"] .pos-page > section,  
+html[data-theme="dark"] .pos-page > article,  
+html[data-theme="dark"] .pos-page > aside {  
+  background-color: transparent;  
+}  
+  
+  
+/* =========================================================  
+   FINAL FULL WIDTH  
+   هذا آخر جزء حتى يضمن عدم وجود فراغات  
+   ========================================================= */  
+  
+html,  
+body,  
+#root,  
+.pos-page {  
+  width: 100% !important;  
+  
+  max-width: none !important;  
+  
+  min-width: 100% !important;  
+  
+  margin-left: 0 !important;  
+  
+  margin-right: 0 !important;  
+}  
+  
+  
+/* =========================================================  
+   FINAL — NO HORIZONTAL SCROLL  
+   ========================================================= */  
+  
+html,  
+body,  
+#root,  
+.pos-page {  
+  overflow-x: hidden !important;  
+}  
+  
+  
+/* =========================================================  
+   FINAL — BACKGROUND IMAGE  
+   ========================================================= */  
+  
+html[data-theme="light"] body,  
+html[data-theme="dark"] body {  
+  background-image:  
+    var(--pos-bg-overlay),  
+    url("../src/assets/5bb37fc6-1980-4994-8cad-ebf44634ee4b.png44.png") !important;  
+  
+  background-size: cover !important;  
+  
+  background-position: center !important;  
+  
+  background-attachment: fixed !important;  
+  
+  background-repeat: no-repeat !important;  
+}  
+  
+  
+/* =========================================================  
+   FINAL — POS PAGE BACKGROUND  
+   ========================================================= */  
+  
+html[data-theme="light"] .pos-page,  
+html[data-theme="dark"] .pos-page {  
+  width: 100% !important;  
+  
+  max-width: none !important;  
+  
+  min-width: 100% !important;  
+  
+  min-height: 100vh !important;  
+  
+  margin: 0 !important;  
+  
+  padding: 0 !important;  
+  
+  background-image:  
+    var(--pos-bg-overlay),  
+    url("../src/assets/5bb37fc6-1980-4994-8cad-ebf44634ee4b.png44.png") !important;  
+  
+  background-size: cover !important;  
+  
+  background-position: center !important;  
+  
+  background-attachment: fixed !important;  
+  
+  background-repeat: no-repeat !important;  
+}  
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+
+/* =========================================================
+   CATEGORY PAGE — FINAL OVERRIDE
+   LIGHT MODE ONLY
+   ========================================================= */
+
+html[data-theme="light"] .pos-page .categories-page,
+html[data-theme="light"] .pos-page .category-page,
+html[data-theme="light"] .pos-page .categories-container {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  min-height: 100vh !important;
 }
 
-html,
-body,
-#root {
-  width: 100%;
-  min-height: 100vh;
+html[data-theme="light"] .pos-page .categories-page > *,
+html[data-theme="light"] .pos-page .category-page > *,
+html[data-theme="light"] .pos-page .categories-container > * {
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+/* =========================================================
+   CATEGORY PAGE — LIGHT MODE
+   شفافية فاتحة جدًا
+   ========================================================= */
+
+html[data-theme="light"] .pos-page .categories-page,
+html[data-theme="light"] .pos-page .category-page,
+html[data-theme="light"] .pos-page .categories-container {
+  background: rgba(255, 255, 255, 0.92) !important;
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  background-image: none !important;
+  min-height: 100vh !important;
+
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
-/* ===== ألوان الوضع الغامق (Dark) — الافتراضي ===== */
-:root,
-[data-theme="dark"] {
-  --pos-bg-overlay: linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9));
-  --pos-body-bg: #020617;
-  --pos-panel-border: rgba(255, 255, 255, 0.15);
-  --pos-panel-bg: rgba(0, 0, 0, 0.8);
-  --pos-panel-shadow: rgba(0, 0, 0, 0.35);
-  --pos-kicker-color: #fbbf24;
-  --pos-label-color: #e2e8f0;
-  --pos-input-border: rgba(255, 255, 255, 0.18);
-  --pos-input-bg: rgba(15, 23, 42, 0.8);
-  --pos-input-text: #ffffff;
-  --pos-primary-bg: #fbbf24;
-  --pos-primary-bg-hover: #fcd34d;
-  --pos-primary-text: #0f172a;
-  --pos-secondary-border: rgba(255, 255, 255, 0.2);
-  --pos-secondary-bg: rgba(255, 255, 255, 0.1);
-  --pos-secondary-bg-hover: rgba(255, 255, 255, 0.2);
-  --pos-secondary-text: #ffffff;
-  --pos-danger-border: rgba(248, 113, 113, 0.35);
-  --pos-danger-bg: rgba(220, 38, 38, 0.85);
-  --pos-danger-bg-hover: #dc2626;
-  --pos-danger-text: #ffffff;
-  --pos-icon-color: #fbbf24;
-  --pos-icon-border: rgba(255, 255, 255, 0.18);
-  --pos-icon-bg: rgba(255, 255, 255, 0.08);
-  --pos-muted-color: #cbd5e1;
-  --pos-error-border: rgba(248, 113, 113, 0.4);
-  --pos-error-bg: rgba(127, 29, 29, 0.65);
-  --pos-error-text: #fecaca;
-  --pos-success-border: rgba(74, 222, 128, 0.35);
-  --pos-success-bg: rgba(20, 83, 45, 0.65);
-  --pos-success-text: #bbf7d0;
+html[data-theme="light"] .pos-page .categories-page > *,
+html[data-theme="light"] .pos-page .category-page > *,
+html[data-theme="light"] .pos-page .categories-container > * {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  background-image: none !important;
 }
-
-/* ===== ألوان الوضع الفاتح (Light) ===== */
-[data-theme="light"] {
-  --pos-bg-overlay: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(241, 245, 249, 0.95));
-  --pos-body-bg: #f8fafc;
-  --pos-panel-border: rgba(15, 152, 17, 0.1);
-  --pos-panel-bg: rgba(255, 255, 255, 0.9);
-  --pos-panel-shadow: rgba(15, 23, 42, 0.1);
-  --pos-kicker-color: #b45309;
-  --pos-label-color: #334155;
-  --pos-input-border: rgba(15, 23, 42, 0.15);
-  --pos-input-bg: rgba(255, 255, 255, 0.9);
-  --pos-input-text: #0f172a;
-  --pos-primary-bg: #f59e0b;
-  --pos-primary-bg-hover: #d97706;
-  --pos-primary-text: #ffffff;
-  --pos-secondary-border: rgba(15, 23, 42, 0.15);
-  --pos-secondary-bg: rgba(15, 23, 42, 0.05);
-  --pos-secondary-bg-hover: rgba(15, 23, 42, 0.1);
-  --pos-secondary-text: #0f172a;
-  --pos-danger-border: rgba(220, 38, 38, 0.3);
-  --pos-danger-bg: #dc2626;
-  --pos-danger-bg-hover: #b91c1c;
-  --pos-danger-text: #ffffff;
-  --pos-icon-color: #b45309;
-  --pos-icon-border: rgba(15, 23, 42, 0.12);
-  --pos-icon-bg: rgba(15, 23, 42, 0.04);
-  --pos-muted-color: #64748b;
-  --pos-error-border: rgba(220, 38, 38, 0.3);
-  --pos-error-bg: #fef2f2;
-  --pos-error-text: #991b1b;
-  --pos-success-border: rgba(22, 163, 74, 0.3);
-  --pos-success-bg: #f0fdf4;
-  --pos-success-text: #166534;
-}
-
-body {
-  font-family: Inter, sans-serif;
-  background: var(--pos-body-bg);
-  transition: background 0.2s ease;
-}
-
-.pos-page {
-  min-height: 100vh;
-  background-image: var(--pos-bg-overlay), url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?q=80&w=1920&auto=format&fit=crop');
-  background-position: center;
-  background-size: cover;
-  background-attachment: fixed;
-  transition: background 0.2s ease;
-}
-
-.pos-panel {
-  border: 1px solid var(--pos-panel-border);
-  border-radius: 1.5rem;
-  background: var(--pos-panel-bg);
-  box-shadow: 0 25px 50px var(--pos-panel-shadow);
-  backdrop-filter: blur(20px);
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.pos-kicker { color: var(--pos-kicker-color); font-size: .7rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
-.pos-label { display: grid; gap: .4rem; color: var(--pos-label-color); font-size: .85rem; font-weight: 700; }
-.pos-input { width: 100%; border: 1px solid var(--pos-input-border); border-radius: .75rem; background: var(--pos-input-bg); padding: .7rem .8rem; color: var(--pos-input-text); outline: none; transition: .15s ease; }
-.pos-input:focus { border-color: var(--pos-primary-bg); }
-.pos-primary, .pos-secondary, .pos-danger, .pos-table-button, .pos-icon-button { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; border-radius: .75rem; font-weight: 700; transition: .15s ease; cursor: pointer; }
-.pos-primary { background: var(--pos-primary-bg); color: var(--pos-primary-text); padding: .75rem 1rem; }
-.pos-primary:hover { background: var(--pos-primary-bg-hover); }
-.pos-secondary, .pos-table-button { border: 1px solid var(--pos-secondary-border); background: var(--pos-secondary-bg); color: var(--pos-secondary-text); padding: .7rem .9rem; }
-.pos-secondary:hover, .pos-table-button:hover { background: var(--pos-secondary-bg-hover); }
-.pos-danger { border: 1px solid var(--pos-danger-border); background: var(--pos-danger-bg); color: var(--pos-danger-text); padding: .7rem .9rem; }
-.pos-danger:hover { background: var(--pos-danger-bg-hover); }
-.pos-icon-button { height: 2.4rem; width: 2.4rem; color: var(--pos-icon-color); border: 1px solid var(--pos-icon-border); background: var(--pos-icon-bg); }
-.pos-muted { color: var(--pos-muted-color); font-size: .9rem; }
-.pos-error, .pos-success { border-radius: .8rem; padding: .85rem 1rem; font-weight: 700; }
-.pos-error { border: 1px solid var(--pos-error-border); background: var(--pos-error-bg); color: var(--pos-error-text); }
-.pos-success { border: 1px solid var(--pos-success-border); background: var(--pos-success-bg); color: var(--pos-success-text); }

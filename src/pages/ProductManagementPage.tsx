@@ -227,7 +227,7 @@ export default function ProductManagementPage() {
                             {product.isActive ? (
                               <button onClick={() => void deactivate(product)} className="pos-danger px-5 py-2.5 text-base"><Power size={17} /> Disable</button>
                             ) : (
-                              <button onClick={() => void activate(product)} className="pos-table-button px-5 py-2.5 text-base" style={{ color: "#34d399" }}><Power size={17} /> Enable</button>
+                              <button onClick={() => void activate(product)} className="pos-table-button pos-enable-button"><Power size={17} /> Enable</button>
                             )}
                           </div>
                         </td>

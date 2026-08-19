@@ -171,50 +171,28 @@ export default function CategoryManagementPage() {
   }
 
   return (
-    <div
-      dir="rtl"
-      className="relative flex min-h-screen w-full justify-center bg-cover bg-center bg-no-repeat font-sans"
-      style={{
-        padding: "40px 24px",
-        backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?q=80&w=1920&auto=format&fit=crop')`,
-        boxSizing: "border-box"
-      }}
-    >
-      <div className="w-full max-w-[1800px]">
-        <header
-          className="relative rounded-3xl border border-white/15 bg-black/80 shadow-2xl backdrop-blur-2xl flex flex-wrap items-center justify-between"
-          style={{
-            padding: "28px 36px",
-            marginBottom: "40px",
-            boxSizing: "border-box"
-          }}
-        >
-          <div className="flex items-center" style={{ gap: "20px" }}>
+    <div dir="rtl" className="pos-page min-h-screen w-full font-sans">
+      <div className="mx-auto w-full max-w-[1800px] p-8">
+        <header className="pos-panel mb-8 flex flex-wrap items-center justify-between gap-4 p-8">
+          <div className="flex items-center gap-4">
             <Link
               to={currentUser?.role === "Admin" ? "/dashboard" : "/home"}
-              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-400 text-slate-950 shadow-xl transition-all hover:bg-amber-300 active:scale-95"
+              className="pos-icon-button"
               aria-label="Back"
             >
-              <ArrowRight size={26} className="stroke-[2.5]" />
+              <ArrowRight size={26} />
             </Link>
 
             <div>
-              <span className="text-sm font-black tracking-widest text-amber-400 uppercase block" style={{ marginBottom: "4px" }}>
-                AL-ISRAA Supermarket
-              </span>
-              <h1 className="text-3xl font-black text-white tracking-tight">
-                Categories
-              </h1>
+              <p className="pos-kicker">AL-ISRAA Supermarket</p>
+              <h1 className="text-3xl font-black">Categories</h1>
             </div>
           </div>
 
-          <div className="flex items-center" style={{ gap: "16px" }}>
+          <div className="flex items-center gap-4">
             <ThemeToggle />
 
-            <div 
-              className="flex items-center rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-400 font-black"
-              style={{ padding: "14px 24px", gap: "10px", fontSize: "1.1rem" }}
-            >
+            <div className="flex items-center gap-2.5 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-6 py-3.5 font-black text-amber-400">
               <Tags size={22} />
               <span>{categories.length} categories</span>
             </div>
@@ -222,11 +200,8 @@ export default function CategoryManagementPage() {
         </header>
 
         <main className="grid grid-cols-1 gap-8 lg:grid-cols-[440px_1fr]">
-          <section 
-            className="h-fit rounded-3xl border border-white/15 bg-black/80 p-8 shadow-2xl backdrop-blur-2xl"
-            style={{ boxSizing: "border-box" }}
-          >
-            <div className="flex items-center" style={{ gap: "16px", marginBottom: "28px" }}>
+          <section className="pos-panel h-fit p-8">
+            <div className="mb-7 flex items-center gap-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-400 text-slate-950 shadow-md">
                 {editingCategory ? (
                   <Edit3 size={26} className="stroke-[2.5]" />
@@ -236,10 +211,10 @@ export default function CategoryManagementPage() {
               </div>
 
               <div>
-                <h2 className="text-xl font-black text-white">
+                <h2 className="text-xl font-black">
                   {editingCategory ? "Edit category" : "Add category"}
                 </h2>
-                <p className="text-sm font-semibold text-slate-400">
+                <p className="pos-muted text-sm">
                   {editingCategory
                     ? "Edit the name and save the changes."
                     : "Add a new category for products."}
@@ -247,9 +222,9 @@ export default function CategoryManagementPage() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col" style={{ gap: "20px" }}>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div>
-                <label className="block text-base font-bold text-slate-300" style={{ marginBottom: "10px" }}>
+                <label className="pos-label mb-2.5 block">
                   Category name
                 </label>
 
@@ -259,28 +234,18 @@ export default function CategoryManagementPage() {
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Example: Drinks"
                   maxLength={100}
-                  className="w-full rounded-2xl border border-white/20 bg-white/10 px-5 py-4 text-lg font-semibold text-white outline-none placeholder:text-slate-500 focus:border-amber-400 focus:bg-white/15 transition-all"
-                  style={{ boxSizing: "border-box" }}
+                  className="pos-input py-4 text-lg"
                 />
               </div>
 
-              {error && (
-                <div className="rounded-2xl bg-red-500/20 p-4 text-center text-base font-bold text-red-200 border border-red-500/40">
-                  {error}
-                </div>
-              )}
+              {error && <p className="pos-error text-center text-base">{error}</p>}
+              {success && <p className="pos-success text-center text-base">{success}</p>}
 
-              {success && (
-                <div className="rounded-2xl bg-emerald-500/20 p-4 text-center text-base font-bold text-emerald-200 border border-emerald-500/40">
-                  {success}
-                </div>
-              )}
-
-              <div className="flex" style={{ gap: "12px", marginTop: "10px" }}>
+              <div className="mt-2.5 flex gap-3">
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 rounded-2xl bg-amber-400 py-4 text-lg font-black text-slate-950 shadow-xl transition-all hover:bg-amber-300 active:scale-95 disabled:opacity-50 cursor-pointer"
+                  className="pos-primary flex-1 py-4 text-lg"
                 >
                   {submitting
                     ? "Saving..."
@@ -293,7 +258,7 @@ export default function CategoryManagementPage() {
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-5 text-slate-300 transition hover:bg-white/20 hover:text-white cursor-pointer"
+                    className="pos-secondary px-5"
                     aria-label="Cancel"
                   >
                     <X size={24} />
@@ -303,40 +268,35 @@ export default function CategoryManagementPage() {
             </form>
           </section>
 
-          <section 
-            className="rounded-3xl border border-white/15 bg-black/80 p-8 shadow-2xl backdrop-blur-2xl"
-            style={{ boxSizing: "border-box" }}
-          >
-            <div style={{ marginBottom: "28px" }}>
-              <h2 className="text-2xl font-black text-white">
-                All categories
-              </h2>
-              <p className="text-sm font-semibold text-slate-400" style={{ marginTop: "6px" }}>
+          <section className="pos-panel p-8">
+            <div className="mb-7">
+              <h2 className="text-2xl font-black">All categories</h2>
+              <p className="pos-muted mt-1.5 text-sm">
                 You can modify or disable any category.
               </p>
             </div>
 
             {loading ? (
-              <p className="py-16 text-center text-lg font-bold text-slate-400">
+              <p className="pos-muted py-16 text-center text-lg font-bold">
                 Loading...
               </p>
             ) : categories.length === 0 ? (
-              <p className="py-16 text-center text-lg font-bold text-slate-400">
+              <p className="pos-muted py-16 text-center text-lg font-bold">
                 No categories available yet.
               </p>
             ) : (
-              <div className="flex flex-col" style={{ gap: "16px" }}>
+              <div className="flex flex-col gap-4">
                 {categories.map((category) => (
                   <div
                     key={category.id}
-                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-5 transition-all hover:bg-white/10"
+                    className="pos-panel flex items-center justify-between p-5"
                   >
-                    <div className="flex items-center" style={{ gap: "18px" }}>
+                    <div className="flex items-center gap-4.5">
                       <div
                         className={`flex h-14 w-14 items-center justify-center rounded-2xl font-bold ${
                           category.isActive
                             ? "bg-amber-400 text-slate-950 shadow-md"
-                            : "bg-white/10 text-slate-500"
+                            : "pos-secondary"
                         }`}
                       >
                         <Tags size={24} />
@@ -350,29 +310,28 @@ export default function CategoryManagementPage() {
                               `/products?categoryId=${category.id}&categoryName=${encodeURIComponent(category.name)}`
                             )
                           }
-                          className="text-xl font-bold text-white transition hover:text-amber-400 hover:underline cursor-pointer"
+                          className="text-xl font-bold transition hover:text-amber-400 hover:underline"
                         >
                           {category.name}
                         </button>
 
                         <span
-                          className={`block text-sm font-bold ${
+                          className={`mt-1 block text-sm font-bold ${
                             category.isActive
-                              ? "text-emerald-400"
-                              : "text-red-400"
+                              ? "text-emerald-500"
+                              : "text-red-500"
                           }`}
-                          style={{ marginTop: "4px" }}
                         >
                           {category.isActive ? "● Active" : "● Disabled"}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex" style={{ gap: "10px" }}>
+                    <div className="flex gap-2.5">
                       <button
                         type="button"
                         onClick={() => void startEditing(category.id)}
-                        className="rounded-xl border border-white/20 bg-white/10 p-3.5 text-amber-400 transition hover:bg-amber-400 hover:text-slate-950 cursor-pointer"
+                        className="pos-table-button"
                         aria-label="Edit"
                       >
                         <Edit3 size={22} />
@@ -382,7 +341,7 @@ export default function CategoryManagementPage() {
                         <button
                           type="button"
                           onClick={() => void handleDeactivate(category)}
-                          className="rounded-xl border border-white/20 bg-white/10 p-3.5 text-red-400 transition hover:bg-red-600 hover:text-white cursor-pointer"
+                          className="pos-danger"
                           aria-label="Disable"
                         >
                           <Power size={22} />
@@ -391,7 +350,7 @@ export default function CategoryManagementPage() {
                         <button
                           type="button"
                           onClick={() => void handleActivate(category)}
-                          className="rounded-xl border border-white/20 bg-white/10 p-3.5 text-emerald-400 transition hover:bg-emerald-600 hover:text-white cursor-pointer"
+                          className="pos-table-button pos-enable-button"
                           aria-label="Enable"
                         >
                           <Power size={22} />
@@ -404,16 +363,12 @@ export default function CategoryManagementPage() {
             )}
 
             {!loading && categories.length > 0 && (
-              <div 
-                className="flex items-center border-t border-white/10 text-sm font-semibold text-slate-400"
-                style={{ marginTop: "32px", paddingTop: "20px", gap: "10px" }}
-              >
-                <CheckCircle2 size={20} className="text-amber-400 shrink-0" />
+              <div className="pos-muted mt-8 flex items-center gap-2.5 border-t border-white/10 pt-5 text-sm font-semibold">
+                <CheckCircle2 size={20} className="shrink-0 text-amber-400" />
                 <span>Disabled categories also appear here, but they will not appear when adding a new product.</span>
               </div>
             )}
           </section>
-
         </main>
       </div>
     </div>

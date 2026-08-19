@@ -163,16 +163,25 @@ export default function InvoiceHistoryPage() {
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
-    <div
+       <div
       dir="rtl"
-      className="min-h-screen bg-cover bg-center bg-no-repeat px-5 py-8 font-sans"
+      className="invoice-history-page min-h-screen bg-cover bg-center bg-no-repeat px-5 py-8 font-sans"
       style={{
         backgroundImage:
           "linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.93)), url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?q=80&w=1920&auto=format&fit=crop')",
       }}
-    >
-      <main className="mx-auto w-full max-w-7xl">
-        <header className="mb-7 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/15 bg-black/80 px-6 py-5 shadow-2xl backdrop-blur-2xl">
+       >
+      <div
+        className="invoice-overlay"
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      <main className="relative z-10 w-full">      <header className="mb-7 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/15 bg-black/80 px-6 py-5 shadow-2xl backdrop-blur-2xl">
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-amber-300 bg-amber-400 text-slate-950 shadow-xl">
               <History size={28} className="stroke-[2.5]" />
@@ -272,7 +281,7 @@ export default function InvoiceHistoryPage() {
           </form>
 
           {error && (
-            <p className="mb-5 rounded-xl border border-red-500/40 bg-red-500/20 px-4 py-3 font-bold text-red-100">
+                      <p className="mb-5 rounded-xl border border-red-500/40 bg-red-500/20 px-4 py-3 font-bold text-red-100 invoice-error-text">
               {error}
             </p>
           )}

@@ -231,9 +231,10 @@ export default function StockManagementPage() {
         backgroundRepeat: "no-repeat",
         backgroundAttachment: "fixed",
       }}
-      className="text-slate-100 font-sans selection:bg-amber-500/30"
+      className="stock-management-page text-slate-100 font-sans selection:bg-amber-500/30"
     >
       <div
+        className="stock-overlay"
         style={{
           position: "fixed",
           top: 0,
@@ -269,8 +270,8 @@ export default function StockManagementPage() {
           </span>
         </header>
 
-        <main className="flex-1 w-full max-w-[1400px] mx-auto px-10 py-12 space-y-10">
-          <section className="relative z-30 rounded-3xl border border-white/10 bg-black/60 p-10 backdrop-blur-2xl shadow-2xl space-y-8">
+<main className="flex-1 w-full px-10 py-12 space-y-10">
+            <section className="relative z-30 rounded-3xl border border-white/10 bg-black/60 p-10 backdrop-blur-2xl shadow-2xl space-y-8">
             <div className="flex items-center gap-3 border-b border-white/10 pb-5">
               <span className="h-3.5 w-3.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400" />
               <h2 className="text-xl font-bold text-white">Select product</h2>

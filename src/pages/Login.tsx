@@ -91,7 +91,7 @@ export default function Login() {
             <span className="text-sm font-black tracking-widest text-amber-400 uppercase block" style={{ marginBottom: "8px" }}>
               AL-ISRAA Supermarket
             </span>
-            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+                        <h1 className="signin-title text-4xl sm:text-5xl font-black text-white tracking-tight">
               Sign In
             </h1>
           </div>
@@ -146,8 +146,8 @@ export default function Login() {
 
             {/* Error message */}
             {error && (
-              <div 
-                className="rounded-2xl bg-red-500/20 p-4 text-center text-base font-bold text-red-200 border border-red-500/40"
+                           <div 
+                className="rounded-2xl bg-red-500/20 p-4 text-center text-base font-black text-red-900 border border-red-500/40"
                 style={{ marginBottom: "24px" }}
               >
                 {error}

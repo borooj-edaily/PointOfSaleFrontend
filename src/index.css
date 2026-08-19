@@ -1199,3 +1199,134 @@ html[data-theme="light"] .pos-page .categories-container > * {
   background-color: rgba(255, 255, 255, 0.92) !important;
   background-image: none !important;
 }
+/* =========================================================
+   CATEGORY MANAGEMENT PAGE — LIGHT MODE
+   الصفحة الحقيقية (CategoryManagementPage.tsx) إلها خلفية خاصة فيها
+   (inline style) ومش عم تستخدم .pos-page، فبنستهدفها عبر
+   class مخصص: .category-management-page
+   الهدف: تبديل شفافية الكروت من رمادي (0.28) لأبيض فاتح (0.82)
+   ========================================================= */
+
+html[data-theme="light"] .category-management-page .bg-black\/80 {
+  background-color: rgba(255, 255, 255, 0.82) !important;
+  background-image: none !important;
+}
+
+html[data-theme="light"] .category-management-page .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html[data-theme="light"] .category-management-page .bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.68) !important;
+}
+
+html[data-theme="light"] .category-management-page .bg-white\/20 {
+  background-color: rgba(255, 255, 255, 0.78) !important;
+}
+
+/* حدود ألطف تنسجم مع الزجاج الأبيض الفاتح */
+html[data-theme="light"] .category-management-page .border-white\/10,
+html[data-theme="light"] .category-management-page .border-white\/15,
+html[data-theme="light"] .category-management-page .border-white\/20 {
+  border-color: rgba(15, 23, 42, 0.10) !important;
+}
+/* =========================================================
+   STOCK MANAGEMENT PAGE — LIGHT MODE
+   الصفحة إلها overlay غامق ثابت (inline style) بيغطي كل شي،
+   لهيك لازم نفكّه أول شي، بعدين نفتّح الكروت لأبيض فاتح
+   ========================================================= */
+
+html[data-theme="light"] .stock-overlay {
+  background-color: rgba(136, 145, 156, 0.72) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+html[data-theme="light"] .stock-management-page .bg-black\/60,
+html[data-theme="light"] .stock-management-page .bg-black\/70,
+html[data-theme="light"] .stock-management-page .bg-black\/80 {
+  background-color: rgba(255, 255, 255, 0.82) !important;
+  background-image: none !important;
+}
+
+html[data-theme="light"] .stock-management-page .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html[data-theme="light"] .stock-management-page .bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.68) !important;
+}
+
+html[data-theme="light"] .stock-management-page .bg-slate-900\/95 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+}
+
+html[data-theme="light"] .stock-management-page .bg-slate-900 {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+}
+
+html[data-theme="light"] .stock-management-page .border-white\/10 {
+  border-color: rgba(15, 23, 42, 0.10) !important;
+}
+.stock-management-page [class*="max-w-"] {
+  max-width: none !important;
+}
+
+.stock-management-page .mx-auto {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+/* =========================================================
+   INVOICE HISTORY PAGE — LIGHT MODE
+   ========================================================= */
+
+html[data-theme="light"] .invoice-history-page .bg-black\/80 {
+  background-color: rgba(255, 255, 255, 0.82) !important;
+  background-image: none !important;
+}
+
+html[data-theme="light"] .invoice-history-page .bg-black\/50 {
+  background-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html[data-theme="light"] .invoice-history-page .bg-black\/40 {
+  background-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html[data-theme="light"] .invoice-history-page .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html[data-theme="light"] .invoice-history-page .bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.68) !important;
+}
+
+html[data-theme="light"] .invoice-history-page .border-white\/10,
+html[data-theme="light"] .invoice-history-page .border-white\/15,
+html[data-theme="light"] .invoice-history-page .border-white\/20 {
+  border-color: rgba(15, 23, 42, 0.10) !important;
+}
+/* =========================================================
+   INVOICE HISTORY PAGE — WARNING TEXT DARK RED (LIGHT MODE)
+   ========================================================= */
+
+html[data-theme="light"] .invoice-history-page .invoice-error-text {
+  color: #991b1b !important;
+}
+/* =========================================================
+   CATEGORY MANAGEMENT PAGE — DARKER OVERLAY (LIGHT MODE)
+   ========================================================= */
+
+html[data-theme="light"] .category-overlay {
+  background-color: rgba(215, 219, 224, 0.72) !important;
+}
+/* =========================================================
+   INVOICE HISTORY PAGE — LIGHTER BACKGROUND (LIGHT MODE)
+   ========================================================= */
+
+html[data-theme="light"] .invoice-overlay {
+  background-color: rgba(203, 193, 193, 0.45) !important;
+}
+html[data-theme="light"] .signin-title {
+  color: #ffffff !important;
+}
